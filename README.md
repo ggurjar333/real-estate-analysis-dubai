@@ -19,7 +19,7 @@ The folder structure of this project is as follows:
 
 To get started with this project, follow these steps:
 
-1. Clone the repository: `git clone https://github.com/your-username/real-estate-analysis-dubai.git`
+1. Clone the repository: `git clone https://github.com/ggurjar333/real-estate-analysis-dubai.git`
 2. Install the required dependencies: `pip install -r requirements.txt`
 3. Set up your environment variables in the `.env` file. You will need to provide values for `URL`, `MONGO_DATABASE_URI`, and `MONGO_DATABASE_NAME`.
 
