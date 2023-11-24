@@ -32,7 +32,9 @@ python src/extract.py
 ``````
 
 This script, `analysis.py`, performs feature engineering on the extracted real estate data. It adds new features that can be useful for further analysis or machine learning models.
-
+```sh
+python src/analysis.py
+```
 The script adds the following features to the data:
 
 - `price_range`: This is a categorical feature derived from the `price` feature. It categorizes the price into four ranges: '0-100k', '100k-200k', '200k-300k', and '300k+'.
