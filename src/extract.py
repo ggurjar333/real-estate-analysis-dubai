@@ -23,23 +23,6 @@ class DataCrawler:
         response = requests.get(url=self.url).json()
         return response["listings"]
 
-    # def extract_data(self):
-    #     extracted_data = []
-    #     for listing in self.get_data():
-    #         extracted_listing = {
-    #             "title": listing["title"],
-    #             "price": listing["price"],
-    #             "area_square_meters": listing["area"]["squareMeters"],
-    #             "area_square_feet": listing["area"]["squareFeet"],
-    #             "bedrooms": listing["bedrooms"],
-    #             "bathrooms": listing["bathrooms"],
-    #             "latitude": listing["latitude"],
-    #             "longitude": listing["longitude"],
-    #             "property_type": listing["propertyType"]
-    #         }
-    #         extracted_data.append(extracted_listing)
-    #     return extracted_data
-
     def dump_to_mongodb(self):
         client = MongoClient(self.uri, server_api=ServerApi('1'))
         try:
