@@ -92,9 +92,9 @@ collection = db[mongodb_collection_name]
 extracted_data = list(collection.find())
 
 # Print element from extracted_data
-for i in range(len(extracted_data)):
-    print(extracted_data[i]['title'])
-    print(extracted_data[i]['price'])
+# for i in range(len(extracted_data)):
+#     print(extracted_data[i]['title'])
+#     print(extracted_data[i]['price'])
 
 
 # csv_data_writer = DataFactory.create_csv_writer(filename_csv, fieldnames)
