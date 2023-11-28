@@ -60,7 +60,7 @@ class DataFactory:
 url = os.getenv('URL')
 mongo_database_uri = os.getenv('MONGO_DATABASE_URI')
 mongo_database_name = os.getenv('MONGO_DATABASE_NAME')
-mongodb_collection_name = f"{mongo_database_name}_{datetime.datetime.now().strftime('%Y-%m-%d')}"
+mongodb_collection_name = f"{datetime.datetime.now().strftime('%Y-%m-%d')}"
 
 filename_csv = f"{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}_extracted_data.csv"
 fieldnames = ["title", "price", "area_square_meters", "area_square_feet", "bedrooms", "bathrooms", "latitude", "longitude", "property_type"]
