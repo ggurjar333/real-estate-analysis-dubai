@@ -3,7 +3,7 @@ name: Daily Data Mining Task
 on: 
   schedule:
     # - cron: '0 0 * * *'
-    - cron: '*/5 * * * *'
+    - cron: '*/2 * * * *'
 
 jobs:
     run_job: 
