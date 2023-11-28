@@ -18,6 +18,10 @@ jobs:
               run: |
                 python -m pip install --upgrade pip
                 pip install -r requirements.txt
-            - name: Run crawler
+            - name: Run crawler with environment variables
+              env: 
+                URL: "https://huspy.com/api/v1/search?limit=5000&lastItemId="
+                MONGO_DATABASE_NAME: "huspy"
+                MONGO_DATABASE_URI: "mongodb+srv://realestate-analyzer:realestate-analyzer@cluster0.w0fxomx.mongodb.net/?retryWrites=true&w=majority"
               run: |
                 python src/extract.py
