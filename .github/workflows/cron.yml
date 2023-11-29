@@ -20,8 +20,8 @@ jobs:
                 pip install -r requirements.txt
             - name: Run crawler with environment variables
               env: 
-                URL: ${{ secrets.URL }}
-                MONGO_DATABASE_NAME: $ {{ secrets.MONGO_DATABASE_NAME }}
-                MONGO_DATABASE_URI: $ {{ secrets.MONGO_DATABASE_URI }}
+                URL: ${{ env.URL }}
+                MONGO_DATABASE_NAME: ${{ env.MONGO_DATABASE_NAME }}
+                MONGO_DATABASE_URI: ${{ env.MONGO_DATABASE_URI }}
               run: |
                 python src/extract.py
