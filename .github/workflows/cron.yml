@@ -2,9 +2,7 @@ name: Daily data crawling job
 
 on: 
   schedule:
-    # - cron: '0 0 * * *'
-    # - cron: '*/5 * * * *'
-    - cron: '0 7 * * 2'
+    - cron: '0 0/5 * * *'
 
 jobs:
     run_job: 
@@ -22,8 +20,8 @@ jobs:
                 pip install -r requirements.txt
             - name: Run crawler with environment variables
               env: 
-                URL: "https://huspy.com/api/v1/search?limit=5000&lastItemId="
-                MONGO_DATABASE_NAME: "huspy"
-                MONGO_DATABASE_URI: "mongodb+srv://realestate-analyzer:realestate-analyzer@cluster0.w0fxomx.mongodb.net/?retryWrites=true&w=majority"
+                URL: ${{ secrets.URL }}
+                MONGO_DATABASE_NAME: ${{ secrets.MONGO_DATABASE_NAME }}
+                MONGO_DATABASE_URI: ${{ secrets.MONGO_DATABASE_URI }}
               run: |
                 python src/extract.py
