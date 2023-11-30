@@ -2,7 +2,7 @@ name: Daily data crawling job
 
 on: 
   schedule:
-    - cron: '0 0/5 * * *'
+    - cron: '0 7 * * 2'
 
 jobs:
     run_job: 
