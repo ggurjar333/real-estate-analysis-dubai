@@ -25,13 +25,13 @@ class DataCrawler:
         try:
             client.admin.command('ping')
             print("Pinged your deployment. You successfully connected to MongoDB!")
+            db = client[self.database_name]
+            collection = db[self.collection_name]
+            collection.insert_many(self.get_data())
+            print(f"Raw Data successfully dumped to MongoDB!")
         except Exception as e:
             print(e)
-        db = client[self.database_name]
-        collection = db[self.collection_name]
-        collection.insert_many(self.get_data())
-        print(f"Raw Data successfully dumped to MongoDB!")
-    
+        
 
 # class CSVDataWriter:
 #     def __init__(self, filename, fieldnames):
