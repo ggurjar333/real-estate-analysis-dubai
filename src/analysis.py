@@ -1,5 +1,4 @@
 from pymongo import MongoClient
-from dotenv import load_dotenv
 import os
 import datetime
 import pandas as pd
@@ -51,7 +50,7 @@ class RealEstateAnalyzer:
 
 
 # Create an instance of the RealEstateAnalyzer class
-analyzer = RealEstateAnalyzer(os.getenv('MONGO_DATABASE_URI'), os.getenv('MONGO_DATABASE_NAME'))
+analyzer = RealEstateAnalyzer(os.environ.get('MONGO_DATABASE_URI'), os.environ.get('MONGO_DATABASE_NAME'))
 
 # Connect to MongoDB
 analyzer.connect_to_mongodb()
@@ -64,7 +63,7 @@ transformed_data = analyzer.transform(raw_data)
 print(transformed_data)
 # Perform feature engineering
 featured_data = analyzer.feature_engineering(transformed_data)
-# print(featured_data)
+print(featured_data)
 # Save the DataFrame to JSON
 # featured_data = pd.DataFrame(extracted_data)
 # featured_data.to_json('featured_data.json', orient='records')
