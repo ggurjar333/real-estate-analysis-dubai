@@ -4,7 +4,6 @@ import os
 import datetime
 import pandas as pd
 
-load_dotenv()
 
 class RealEstateAnalyzer:
     def __init__(self, mongo_database_uri, mongo_database_name):
@@ -16,7 +15,7 @@ class RealEstateAnalyzer:
         self.db = client[self.mongo_database_name]
 
     def extract_data(self):
-        collection_name = f"{self.mongo_database_name}_{datetime.datetime.now().strftime('%Y-%m-%d')}"
+        collection_name = f"{datetime.datetime.now().strftime('%Y-%m-%d')}"
         collection = self.db[collection_name]
         raw_data = list(collection.find())
         return raw_data
