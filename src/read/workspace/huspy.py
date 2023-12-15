@@ -14,12 +14,6 @@ import read
 logger = read.logging_helpers.get_logger(__name__)
 
 class DataCrawler:
-    # def __init__(self, url, database_name, collection_name, uri):
-    #     self.url = url
-    #     self.database_name = database_name
-    #     self.collection_name = collection_name
-    #     self.uri = uri
-
     timeout: float
     http: requests.Session
 
@@ -41,6 +35,7 @@ class DataCrawler:
 
 
     def get_descriptor(self: Self, dataset:str):
+
 
     def dump_to_mongodb(self):
         client = MongoClient(self.uri, server_api=ServerApi('1'))

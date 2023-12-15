@@ -1,9 +1,15 @@
 """Datastore manages data retrieval for READ datasets."""
 import read
 import os
-import typing import Annotated, Any, Self
+from typing import Annotated, Any, Self
+import re
 
-from pydantic_settings import BaseStrings, SettingsConfigDict
+import requests
+from pydantic import HttpUrl, StringConstraints
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+
 
 from read.workspace.huspy import DataFactory
 
@@ -12,32 +18,28 @@ logger = read.logging_helpers.get_logger(__name__)
 HuspyDoi = Annotated[
     str,
     StringConstraints(
-        strict=True, min_length=16, pattern=r"/v1/search"
+        strict=True, min_length=16, pattern=r"search"
     ),
 ]
 
 
-
-
 class HuspyDoiSettings(BaseSettings):
     """Digital Object Identifiers pointing to currently used Huspy API. """
-    try5000: HuspyDoi = 'search?limit=5000'
-    geo5000: HuspyDoi = 'search/geo?limit=5000'
+    LIMIT_5000: HuspyDoi = '?limit=5000'
+    GEO_LIMIT_5000: HuspyDoi = 'geo?limit=5000'
 
     model_config = SettingsConfigDict(env_prefix="read_huspy_doi_", env_file=".env")
-    
+
 
 class HuspyFetcher:
     """API for fetching contents from Huspy."""
     huspy_dois: HuspyDoiSettings()
     timeout: float
-    http: requests.Session
+    http: requests.Session()
 
     def __init__(self: Self, huspy_dois: HuspyDoiSettings | None= None, timeout: float = 15.0):
         """Constructs HuspyFetcher instance."""
-        if not huspy_dois:
-            self.huspy_dois = HuspyDoiSettings()
-
+        self.huspy_dois = HuspyDoiSettings() or huspy_dois
         self.timeout = timeout
 
         retries = Retry(backoff_max=2, total=3, status_forcelist=[429, 500, 502, 503, 504])
@@ -51,7 +53,7 @@ class HuspyFetcher:
             doi = self.huspy_dois.__getattribute__(dataset)
         except AttributeError:
             raise AttributeError(f"No Huspy DOI found for dataset {dataset}.")
-        return dois
+        return doi
 
     def get_known_resources(self: Self) -> list[str]:
         """Returns list of supported datasets."""
@@ -66,13 +68,14 @@ class HuspyFetcher:
 
         doi_prefix = match.groups()[0]
         huspy_id = match.groups()[1]
-        if doi_prefix == '/v1/'
-        
+        if doi_prefix == 'limit=5000':
+            api_root = "https://huspy.com/api/search?"
+        elif doi_prefix == 'geo?limit=5000':
+            api_root = "https://huspy.com/api/search/"
+        else:
+            raise ValueError(f"Invalid Huspy DOI: {doi}")
+        return f"{api_root}{huspy_id}"
 
-#    def __init__(self, url, mongodb_uri, mongodb_name):
-#        self.url = url
-#        self.mongodb_uri = mongodb_uri
-#        self.mongodb_name = mongodb_name
     def _fetch_from_url(self: Self, url: HttpUrl) -> requests.Response:
         logger.info(f"Retrieving {url} from Huspy")
         response = self.http.get(url = url, timeout=self.timeout)
