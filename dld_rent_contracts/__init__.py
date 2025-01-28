@@ -10,9 +10,9 @@ logger = logging.getLogger(__name__)
 
 def main():
     URL = "https://www.dubaipulse.gov.ae/data/dld-registration/dld_rent_contracts-open"
-    # downloader = RentContractsDownloader(URL)
+    downloader = RentContractsDownloader(URL)
     filename = f'rent_contracts_{date.today()}.csv'
-    # downloader.run(filename=filename)
+    downloader.run(filename=filename)
     try:
         # Initialize client (uses sandbox by default)
         client = ZenodoClient()
