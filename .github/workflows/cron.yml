@@ -2,7 +2,8 @@ name: Daily data crawling job
 
 on: 
   schedule:
-    - cron: '0 7 * * 2' # Every Tuesday at 7:00 UTC
+    # - cron: '0 7 * * 2' # Every Tuesday at 7:00 UTC
+    - cron: '5 * * * *'
 
 jobs:
     run_job: 
@@ -18,11 +19,7 @@ jobs:
               run: |
                 python -m pip install --upgrade pip
                 pip install -r requirements.txt
-            - name: Run crawler with environment variables
-              env: 
-                URL: ${{ secrets.URL }}
-                MONGO_DATABASE_NAME: ${{ secrets.MONGO_DATABASE_NAME }}
-                MONGO_DATABASE_URI: ${{ secrets.MONGO_DATABASE_URI }}
-              run: |
-                # python src/read/extract/extract.py
+                export ZENODO_TOKEN=${{ secrets.ZENODO_PAT }}
                 python dld_rent_contracts/__init__.py
+              env:
+                ZENODO_PAT: ${{ secrets.ZENODO_PAT }}

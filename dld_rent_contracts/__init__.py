@@ -1,37 +1,44 @@
-import requests
-from bs4 import BeautifulSoup
-import subprocess
+from rent_contracts_downloader import RentContractsDownloader
+from zenodo_client import ZenodoClient, ZenodoAPIError  # Add this import
+
+import logging
 from datetime import date
 
-class RentContractsDownloader:
-    def __init__(self, url):
-        self.url = url
-
-    def fetch_rent_contracts(self):
-        response = requests.get(self.url)
-        response.raise_for_status()
-        return response.content
-
-    def parse_html(self, html_content):
-        soup = BeautifulSoup(html_content, 'html.parser')
-        a_tag = soup.find('a', class_='action-icon-anchor')
-        return a_tag['href'] if a_tag else None
-
-    def download_file(self, href):
-        filename = f'rent_contracts_{date.today()}.csv'
-        subprocess.run(['wget', '-c', '-O', filename, href])
-
-    def run(self):
-        html_content = self.fetch_rent_contracts()
-        href = self.parse_html(html_content)
-        if href:
-            self.download_file(href)
-
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def main():
     URL = "https://www.dubaipulse.gov.ae/data/dld-registration/dld_rent_contracts-open"
-    downloader = RentContractsDownloader(URL)
-    downloader.run()
+    # downloader = RentContractsDownloader(URL)
+    filename = f'rent_contracts_{date.today()}.csv'
+    # downloader.run(filename=filename)
+    try:
+        # Initialize client (uses sandbox by default)
+        client = ZenodoClient()
+        
+        # Create new deposition
+        deposition = client.create_deposition()
+        deposition_id = deposition["id"]
+        logger.info("Created deposition ID: %s", deposition_id)
+        
+        # Upload file
+        upload_response = client.upload_file(deposition_id, filename)
+        logger.info("Uploaded file: %s", upload_response["filename"])
+        
+        # Publish deposition
+        published = client.publish_deposition(deposition_id)
+        record_id = published["id"]
+        logger.info("Published record ID: %s", record_id)
+        
+        # Download file
+        # client.download_file(record_id, "example.csv", "downloaded.csv")
+    
+    except ZenodoAPIError as e:
+        logger.error("Zenodo operation failed: %s", e)
+    except Exception as e:
+        logger.error("Unexpected error: %s", e)
+
 
 
 if __name__ == "__main__":
