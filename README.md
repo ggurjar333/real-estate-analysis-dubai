@@ -1,3 +1,5 @@
+pip install -e ".[dev]"
+
 # Real Estate Analysis Dubai
 
 This repository contains the code and data for analyzing real estate properties in Dubai.

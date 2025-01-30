@@ -1,0 +1,4 @@
+locations:
+  - location_name: rent_contracts_etl
+    code_source:
+      module_name: rent_contracts_etl.definitions
