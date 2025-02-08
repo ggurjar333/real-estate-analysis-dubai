@@ -4,17 +4,17 @@ TEST_DIR := tests
 BUILD_DIR := build
 
 # default target
-all: clean build test
+all: build extract
 
-clean:
-	@echo "Clean ..."
-	rm -rf $(BUILD_DIR)/*
-	rm -rf $(SOURCE_DIR)/*.egg-info
-	rm -rf $(SOURCE_DIR)/__pycache__
-	rm -rf $(TEST_DIR)/__pycache__
-	find . -type f -name '*.pyc' -delete
-	find . -type f -name '*.pyo' -delete
-	find . -type f -name '*~' -delete
+#clean:
+#	@echo "Clean ..."
+#	rm -rf $(BUILD_DIR)/*
+#	rm -rf $(SOURCE_DIR)/*.egg-info
+#	rm -rf $(SOURCE_DIR)/__pycache__
+#	rm -rf $(TEST_DIR)/__pycache__
+#	find . -type f -name '*.pyc' -delete
+#	find . -type f -name '*.pyo' -delete
+#	find . -type f -name '*~' -delete
 
 
 build:
@@ -31,6 +31,6 @@ extract:
 
 test:
 	@echo "Test ..."
-	pytest tests/
+	pytest .
 
 .PHONY: all extract

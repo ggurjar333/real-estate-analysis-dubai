@@ -19,5 +19,4 @@ jobs:
                 ZENODO_TOKEN: ${{ secrets.ZENODO_PAT }}
                 DLD_URL: ${{ secrets.DLD_URL }}
               run: |
-                make build
-                make extract
+                make all
