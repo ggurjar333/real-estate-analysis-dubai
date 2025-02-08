@@ -19,12 +19,11 @@ class RentContractsDownloader:
     def download_file(self, href, filename):
         subprocess.run(['wget', '-c', '-O', filename, href])
 
-    @staticmethod
-    def run(self, filename):
-        html_content = self.fetch_rent_contracts()
-        href = self.parse_html(html_content)
+    @classmethod
+    def run(cls, url, filename):
+        downloader = cls(url)
+        html_content = downloader.fetch_rent_contracts()
+        href = downloader.parse_html(html_content)
         if href:
-            self.download_file(href, filename)
-
-
+            downloader.download_file(href, filename)
 

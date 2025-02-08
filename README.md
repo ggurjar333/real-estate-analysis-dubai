@@ -30,12 +30,12 @@ To get started with this project, follow these steps:
 To extract data, run the `extract.py` script in the `src/` directory:
 
 ```sh
-python src/extract.py
+python lib/extract.py
 ``````
 
 This script, `analysis.py`, performs feature engineering on the extracted real estate data. It adds new features that can be useful for further analysis or machine learning models.
 ```sh
-python src/analysis.py
+python lib/analysis.py
 ```
 The script adds the following features to the data:
 

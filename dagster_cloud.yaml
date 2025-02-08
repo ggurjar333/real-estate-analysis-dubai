@@ -1,4 +1,0 @@
-locations:
-  - location_name: rent_uae
-    code_source:
-      module_name: rent_uae.definitions
