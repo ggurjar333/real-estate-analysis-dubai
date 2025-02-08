@@ -13,6 +13,7 @@ def rent_contracts_downloader():
 
     # Check the file size with bash command and echo the result to metadata
     file_size = subprocess.run(['du', '-h', filename], capture_output=True, text=True).stdout
+    print(file_size)
 
     # Save the file to Git LFS
     subprocess.run(['git', 'lfs', 'track', filename])
