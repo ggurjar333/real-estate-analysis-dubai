@@ -1,13 +1,13 @@
-from rent_contracts_etl.classes.rent_contracts_downloader import RentContractsDownloader
+import os
+import argparse
+
+from src.classes.rent_contracts_downloader import RentContractsDownloader
 
 from datetime import date
 import subprocess
 
-from dagster import AssetExecutionContext, MaterializeResult, MetadataValue, asset
-
-@asset(group_name="DubaiLandDepartment", compute_kind="WebScraping")
-def rent_contracts_downloader(context: AssetExecutionContext) -> MaterializeResult:
-    URL = "https://www.dubaipulse.gov.ae/data/dld-registration/dld_rent_contracts-open"
+def rent_contracts_downloader():
+    URL = os.getenv("DLD_URL")
     downloader = RentContractsDownloader(URL)
     filename = f'rent_contracts_{date.today()}.csv'
     downloader.run(filename=filename)
@@ -19,9 +19,6 @@ def rent_contracts_downloader(context: AssetExecutionContext) -> MaterializeResu
     subprocess.run(['git', 'add', filename])
     subprocess.run(['git', 'commit', '-m', f'Add {filename}'])
     subprocess.run(['git', 'push'])
-    
-    return MaterializeResult(
-        metadata={
-            "file_size": MetadataValue.str(file_size),
-        }
-    )
+
+if __name__ == "__main__":
+    rent_contracts_downloader()
