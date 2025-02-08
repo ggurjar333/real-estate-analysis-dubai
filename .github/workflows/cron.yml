@@ -19,6 +19,5 @@ jobs:
                 ZENODO_TOKEN: ${{ secrets.ZENODO_PAT }}
                 DLD_URL: ${{ secrets.DLD_URL }}
               run: |
-                python -m pip install --upgrade pip
-                pip install -r requirements.txt
-                python src/extract/dubai_land_department.py
+                make build
+                make extract
