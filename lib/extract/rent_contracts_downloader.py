@@ -1,6 +1,8 @@
 import requests
-from bs4 import BeautifulSoup
 import subprocess
+
+from bs4 import BeautifulSoup
+
 
 class RentContractsDownloader:
     def __init__(self, url):
@@ -26,4 +28,3 @@ class RentContractsDownloader:
         href = downloader.parse_html(html_content)
         if href:
             downloader.download_file(href, filename)
-

@@ -23,6 +23,7 @@ build:
 	pip install -r requirements.txt
 	cd lib
 	pip install .
+	cd ..
 
 # extract the data
 extract:
