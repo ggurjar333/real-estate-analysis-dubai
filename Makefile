@@ -4,22 +4,23 @@ TEST_DIR := tests
 BUILD_DIR := build
 
 # default target
-all: build extract
+all: clean build extract
 
-#clean:
-#	@echo "Clean ..."
-#	rm -rf $(BUILD_DIR)/*
-#	rm -rf $(SOURCE_DIR)/*.egg-info
-#	rm -rf $(SOURCE_DIR)/__pycache__
-#	rm -rf $(TEST_DIR)/__pycache__
-#	find . -type f -name '*.pyc' -delete
-#	find . -type f -name '*.pyo' -delete
-#	find . -type f -name '*~' -delete
+clean:
+	@echo "Clean ..."
+	rm -rf $(BUILD_DIR)/*
+	rm -rf $(SOURCE_DIR)/*.egg-info
+	rm -rf $(SOURCE_DIR)/__pycache__
+	rm -rf $(TEST_DIR)/__pycache__
+	find . -type f -name '*.pyc' -delete
+	find . -type f -name '*.pyo' -delete
+	find . -type f -name '*~' -delete
 
 
 build:
 	@echo "Build ..."
 	python --version
+	pip install --upgrade pip
 	pip install -r requirements.txt
 	cd lib
 	pip install .
