@@ -6,3 +6,4 @@ cmake
 setuptools
 pandas
 pyarrow
+apache-airflow
