@@ -1,27 +1,28 @@
-import pandas as pd
-import pyarrow as pa
-
-import pyarrow.parquet as pq
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col
 
 class RentContractsTransformer:
     def __init__(self, input_file: str, output_file: str):
         self.input_file = input_file
         self.output_file = output_file
+        self.spark = SparkSession.builder.appName("RentContractsTransformer").getOrCreate()
 
     def transform(self):
         # Read the CSV file
-        df = pd.read_csv(self.input_file)
+        df = self.spark.read.csv(self.input_file, header=True, inferSchema=True, nullValue='null')
+        df.show(5)
 
         # Separate string and numeric columns
-        string_columns = df.select_dtypes(include=['object']).columns.tolist()
-        numeric_columns = df.select_dtypes(include=['number']).columns.tolist()
+        string_columns = [field.name for field in df.schema.fields if field.dataType == 'StringType']
+        numeric_columns = [field.name for field in df.schema.fields if field.dataType in ['IntegerType', 'DoubleType']]
 
         # Reorder columns
-        df = df[string_columns + numeric_columns]
-
-        # Convert DataFrame to Apache Arrow Table
-        table = pa.Table.from_pandas(df)
+        df = df.select(string_columns + numeric_columns)
+        df.show(10)
 
         # Write to Parquet file with heavy compression
-        pq.write_table(table, self.output_file, compression='BROTLI')
-        
+        df.write.parquet(self.output_file, compression='brotli')
+
+# Example usage
+# transformer = RentContractsTransformer('input.csv', 'output.parquet')
+# transformer.transform()

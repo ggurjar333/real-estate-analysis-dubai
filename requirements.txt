@@ -4,6 +4,5 @@ python-dotenv
 coloredlogs
 cmake
 setuptools
-pandas
-pyarrow
+pyspark
 apache-airflow
