@@ -29,5 +29,5 @@ To get started with this project, follow these steps:
 To extract data:
 
 ```sh
-make extract
+make all
 ``````
