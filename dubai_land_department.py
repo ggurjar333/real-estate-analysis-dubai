@@ -8,10 +8,11 @@ import subprocess
 from lib.transform.rent_contracts_transformer import RentContractsTransformer
 
 configure_root_logger(logfile="extract.log", loglevel="DEBUG")
-logger = get_logger(__name__)
+
 try:
+    logger = get_logger("Extract")
     logger.info("Downloading rent contracts")
-    URL = os.getenv("DLD_URL")
+    URL = os.getenv("DLD_URL", "https://www.dubaipulse.gov.ae/data/dld-registration/dld_rent_contracts-open")
     filename = f'rent_contracts_{date.today()}.csv'
     
     # if not filename in the root directory then run RentContractsDownloader
@@ -22,21 +23,19 @@ try:
             rcd.run(filename)
         except Exception as e:
             logger.info("Error downloading rent contracts")
-        finally:
-            pass
-    else:
-        logger.info(f"{filename} found in the root directory. Running RentContractsTransformer.")
-        transformed_file = f'rent_contracts_{date.today()}.parquet'
-        rct = RentContractsTransformer(filename, transformed_file)
-        rct.transform()
-        # add the transformed_file to git
-        try:
-            subprocess.run(['git', 'add', transformed_file], check=True)
-            subprocess.run(['git', 'commit', '-m', f'Add transformed file {transformed_file}'], check=True)
-            subprocess.run(['git', 'push'], check=True)
-            print(f'{transformed_file} has been added, committed, and pushed to Git LFS.')
-        except subprocess.CalledProcessError as e:
-            print(f'An error occurred: {e}')
+    logger = get_logger("Transform")
+    logger.info(f"{filename} found in the root directory. Running RentContractsTransformer.")
+    transformed_file = f'rent_contracts_{date.today()}.parquet'
+    rct = RentContractsTransformer(filename, transformed_file)
+    rct.transform()
+    # add the transformed_file to git
+    try:
+        subprocess.run(['git', 'add', transformed_file], check=True)
+        subprocess.run(['git', 'commit', '-m', f'Add transformed file {transformed_file}'], check=True)
+        subprocess.run(['git', 'push'], check=True)
+        print(f'{transformed_file} has been added, committed, and pushed to Git LFS.')
+    except subprocess.CalledProcessError as e:
+        print(f'An error occurred: {e}')
 
 finally:
     print("Nothing is working.")

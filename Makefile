@@ -22,10 +22,7 @@ build:
 	python --version
 	pip install --upgrade pip
 	pip install -r requirements.txt
-	cd lib
-	pip install .
-	cd ..
-
+	pip install lib/
 # extract the data
 extract:
 	@echo "Extract ..."
