@@ -9,7 +9,7 @@ def get_logger(name: str):
     return logging.getLogger(f"READ.{name}")
 
 
-def configure_root_logger(logfile: str | None=None, loglevel: str = "INFO"):
+def configure_root_logger(logfile: str, loglevel: str = "INFO"):
     """Configure the root READ logger.
 
     Args:
