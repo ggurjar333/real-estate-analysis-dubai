@@ -23,4 +23,4 @@ jobs:
           ZENODO_TOKEN: ${{ secrets.ZENODO_PAT }}
           DLD_URL: ${{ secrets.DLD_URL }}
         run: |
-          make all
+          make clean
