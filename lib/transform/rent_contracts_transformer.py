@@ -7,7 +7,7 @@ class RentContractsTransformer:
 
     def transform(self):
         # Read the CSV file
-        df = pl.read_csv(self.input_file)
+        df = pl.read_csv(self.input_file, null_values="null")
         print(df.head(5))
 
         # Separate string and numeric columns
