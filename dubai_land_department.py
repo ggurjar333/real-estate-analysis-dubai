@@ -40,7 +40,7 @@ def commit_transformed_file(file):
         raise
 
 def main():
-    url = os.getenv("DLD_URL", "https://www.dubaipulse.gov.ae/data/dld-registration/dld_rent_contracts-open")
+    url = os.getenv("DLD_URL")
     csv_filename = f'rent_contracts_{date.today()}.csv'
     parquet_filename = f'rent_contracts_{date.today()}.parquet'
 
