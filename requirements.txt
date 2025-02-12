@@ -4,5 +4,4 @@ python-dotenv
 coloredlogs
 cmake
 setuptools
-pyspark
 apache-airflow

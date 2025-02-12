@@ -10,7 +10,8 @@
 				"ms-azuretools.vscode-docker",
 				"GitHub.copilot",
 				"ms-python.python",
-				"github.vscode-github-actions"
+				"github.vscode-github-actions",
+				"ms-vscode.makefile-tools"
 			]
 			}
 		}

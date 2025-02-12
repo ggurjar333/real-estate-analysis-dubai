@@ -26,8 +26,6 @@ To get started with this project, follow these steps:
 
 ## Usage
 
-To extract data:
-
 ```sh
 make all
 ``````
