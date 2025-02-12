@@ -7,7 +7,7 @@ class RentContractsTransformer:
 
     def transform(self):
         # Read the CSV file
-        df = pl.read_csv(self.input_file, null_values=["null"], schema_overrides={"ejari_property_sub_type_id": pl.Int64})
+        df = pl.read_csv(self.input_file, null_values=["null"], schema_overrides={"ejari_property_sub_type_id": pl.Int64}, n_threads=4)
         print(df.head(5))
 
         # Separate string and numeric columns
