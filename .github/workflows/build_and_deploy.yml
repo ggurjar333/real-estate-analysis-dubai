@@ -8,6 +8,9 @@ on:
 jobs:
   run_job: 
     runs-on: ubuntu-latest
+    env:
+        ACTIONS_RUNNER_DEBUG: true
+        ACTIONS_STEP_DEBUG: true  
     steps:
       - name: Checkout
         uses: actions/checkout@v2
