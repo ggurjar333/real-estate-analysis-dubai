@@ -32,4 +32,4 @@ test:
 	@echo "Test ..."
 	pytest .
 
-.PHONY: all extract
+.PHONY: all
