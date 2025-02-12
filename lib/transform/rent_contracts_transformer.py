@@ -1,4 +1,9 @@
+from datetime import date
+import logging
 import polars as pl
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 
 class RentContractsTransformer:
     def __init__(self, input_file: str, output_file: str):
@@ -6,17 +11,33 @@ class RentContractsTransformer:
         self.output_file = output_file
 
     def transform(self):
-        # Read the CSV file
-        df = pl.read_csv(self.input_file, null_values=["null"], schema_overrides={"ejari_property_sub_type_id": pl.Int64}, n_threads=4)
-        print(df.head(5))
+        try:
+            # Read the CSV as a LazyFrame with any necessary schema overrides.
+            lf = pl.scan_csv(
+                self.input_file,
+                null_values=["null"],
+                schema_overrides={"ejari_property_sub_type_id": pl.Int64}
+            )
+            # Resolve the schema once to get column names and types.
+            schema = lf.collect_schema()
+            column_names = schema.names()
+            column_types = schema.dtypes()
 
-        # Separate string and numeric columns
-        string_columns = [col for col, dtype in zip(df.columns, df.dtypes) if dtype == pl.Utf8]
-        numeric_columns = [col for col, dtype in zip(df.columns, df.dtypes) if dtype in [pl.Int32, pl.Float64]]
+            # Select columns by type without triggering performance warnings.
+            string_columns = [
+                col for col, dtype in zip(column_names, column_types) 
+                if dtype == pl.Utf8
+            ]
+            numeric_columns = [
+                col for col, dtype in zip(column_names, column_types) 
+                if dtype in [pl.Int32, pl.Float64]
+            ]
 
-        # Reorder columns
-        df = df.select(string_columns + numeric_columns)
-        print(df.head(10))
+            # Reorder columns: first strings, then numerics.
+            lf = lf.select(string_columns + numeric_columns)
 
-        # Write to Parquet file with heavy compression
-        df.write_parquet(self.output_file, compression='brotli')
+            # Write the LazyFrame to Parquet.
+            # Note: This uses the old streaming engine, which is deprecated.
+            lf.sink_parquet(self.output_file, compression="zstd", compression_level=22)
+        except Exception as e:
+            logging.exception("An error occurred during transformation.")
