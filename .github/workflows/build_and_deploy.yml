@@ -18,6 +18,7 @@ jobs:
       - name: Install dependencies
         if: ${{ secrets.ZENODO_PAT && secrets.DLD_URL }}
         env:
-        ZENODO_TOKEN: ${{ secrets.ZENODO_PAT }}
-        DLD_URL: ${{ secrets.DLD_URL }}
-        run: | make all
+          ZENODO_TOKEN: ${{ secrets.ZENODO_PAT }}
+          DLD_URL: ${{ secrets.DLD_URL }}
+        run: |
+          make all
