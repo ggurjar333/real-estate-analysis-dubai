@@ -22,12 +22,13 @@ def download_rent_contracts(url, filename):
 
 def transform_rent_contracts(input_file, output_file):
     logger.info(f"{input_file} found in the root directory. Running RentContractsTransformer.")
-    try:
-        rct = RentContractsTransformer(input_file, output_file)
-        rct.transform()
-    except Exception as e:
-        logger.error(f"Error transforming rent contracts: {e}")
-        raise
+    if os.path.isfile(input_file):    
+        try:
+            rct = RentContractsTransformer(input_file, output_file)
+            rct.transform()
+        except Exception as e:
+            logger.error(f"Error transforming rent contracts: {e}")
+            raise
 
 def commit_transformed_file(file):
     try:

@@ -4,3 +4,4 @@ python-dotenv
 coloredlogs
 cmake
 setuptools
+polars
