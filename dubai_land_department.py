@@ -20,7 +20,7 @@ def download_rent_contracts(url, filename):
             logger.error(f"Error downloading rent contracts: {e}")
             raise
 
-def transform_rent_contracts(input_file, output_file):
+def transform_rent_contracts(input_file, output_file, n_threads):
     logger.info(f"{input_file} found in the root directory. Running RentContractsTransformer.")
     if os.path.isfile(input_file):    
         try:
@@ -41,13 +41,13 @@ def commit_transformed_file(file):
         raise
 
 def main():
-    url = os.getenv("DLD_URL")
+    url = "https://www.dubaipulse.gov.ae/data/dld-registration/dld_rent_contracts-open"
     csv_filename = f'rent_contracts_{date.today()}.csv'
     parquet_filename = f'rent_contracts_{date.today()}.parquet'
 
     try:
         download_rent_contracts(url, csv_filename)
-        transform_rent_contracts(csv_filename, parquet_filename)
+        transform_rent_contracts(csv_filename, parquet_filename, n_threads=2)
         commit_transformed_file(parquet_filename)
     except Exception as e:
         logger.error(f"An error occurred in the main process: {e}")
