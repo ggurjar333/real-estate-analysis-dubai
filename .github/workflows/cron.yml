@@ -24,7 +24,7 @@ jobs:
 
       - name: Install dependencies
         env:
-          ZENODO_TOKEN: ${{ secrets.ZENODO_PAT }}
-          DLD_URL: ${{ secrets.DLD_URL }}
+          ZENODO_TOKEN: ${{ vars.ZENODO_PAT }}
+          DLD_URL: ${{ vars.DLD_URL }}
         run: |
           make all
