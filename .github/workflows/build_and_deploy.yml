@@ -18,9 +18,23 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: '3.9'
+
+      - name: Set RELEASE_DATE
+        shell: bash
+        run: echo "RELEASE_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+
       - name: Install dependencies
         env:
           ZENODO_TOKEN: ${{ vars.ZENODO_PAT }}
           DLD_URL: ${{ vars.DLD_URL }}
+
+      - name: Generate Parquet Dataset       
         run: |
-          make clean
+          make all
+      
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: "rent_contracts_${{ env.RELEASE_DATE }}"
+          name: "Rent Contracts Release ${{ env.RELEASE_DATE }}"
+          files: output/rent_contracts_${{ env.RELEASE_DATE }}.parquet
