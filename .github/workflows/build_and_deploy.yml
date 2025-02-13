@@ -22,12 +22,12 @@ jobs:
 
       - name: Set RELEASE_DATE
         shell: bash
-        run: echo "RELEASE_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+        run: echo "RELEASE_DATE=$(date +'%Y-%m-%d')" >> $RELEASE_DATE
   
       - name: Set Environment variables
         run: |
-          echo "ZENODO_TOKEN=${{ vars.ZENODO_PAT }}" >> $GITHUB_ENV
-          echo "DLD_URL=${{ vars.DLD_URL }}" >> $GITHUB_ENV
+          echo "ZENODO_TOKEN=${{ secrets.ZENODO_PAT }}" >> $ZENODO_TOKEN
+          echo "DLD_URL=${{ secrets.DLD_URL }}" >> $DLD_URL
   
       - name: Generate Parquet Dataset       
         run: |
