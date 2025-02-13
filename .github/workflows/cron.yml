@@ -19,6 +19,11 @@ jobs:
         with:
           python-version: '3.9'
 
+      - name: Configure Git identity
+        run: |
+          git config --global user.name "ggurjar333"
+          git config --global user.email "ggurjar333@gmail.com"
+        
       - name: Set RELEASE_DATE
         id: set_release_date
         shell: bash
