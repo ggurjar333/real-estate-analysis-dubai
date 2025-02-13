@@ -9,11 +9,12 @@ jobs:
   run_job: 
     runs-on: ubuntu-latest
     env:
-        ACTIONS_RUNNER_DEBUG: true
-        ACTIONS_STEP_DEBUG: true  
+      ACTIONS_RUNNER_DEBUG: true
+      ACTIONS_STEP_DEBUG: true  
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
@@ -22,16 +23,16 @@ jobs:
       - name: Set RELEASE_DATE
         shell: bash
         run: echo "RELEASE_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
-
-      - name: Install dependencies
-        env:
-          ZENODO_TOKEN: ${{ vars.ZENODO_PAT }}
-          DLD_URL: ${{ vars.DLD_URL }}
-
+  
+      - name: Set Environment variables
+        run: |
+          echo "ZENODO_TOKEN=${{ vars.ZENODO_PAT }}" >> $GITHUB_ENV
+          echo "DLD_URL=${{ vars.DLD_URL }}" >> $GITHUB_ENV
+  
       - name: Generate Parquet Dataset       
         run: |
           make all
-      
+        
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1
         with:
