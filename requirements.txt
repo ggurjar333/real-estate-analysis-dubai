@@ -5,3 +5,4 @@ coloredlogs
 cmake
 setuptools
 polars
+pytest

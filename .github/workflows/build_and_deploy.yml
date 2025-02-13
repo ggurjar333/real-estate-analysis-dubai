@@ -1,4 +1,4 @@
-name: Build and Deploy
+name: Dev - Build and Deploy
 
 on:
   push:
@@ -21,13 +21,14 @@ jobs:
           python-version: '3.9'
 
       - name: Set RELEASE_DATE
+        id: set_release_date
         shell: bash
         run: echo "RELEASE_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
   
       - name: Set Environment variables
         run: |
-          echo "ZENODO_TOKEN=${{ vars.ZENODO_PAT }}" >> $GITHUB_ENV
-          echo "DLD_URL=${{ vars.DLD_URL }}" >> $GITHUB_ENV
+          echo "ZENODO_TOKEN=${{ secrets.ZENODO_PAT }}" >> $GITHUB_ENV
+          echo "DLD_URL=${{ secrets.DLD_URL }}" >> $GITHUB_ENV
   
       - name: Generate Parquet Dataset       
         run: |
@@ -36,6 +37,8 @@ jobs:
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1
         with:
-          tag: "rent_contracts_${{ env.RELEASE_DATE }}"
-          name: "Rent Contracts Release ${{ env.RELEASE_DATE }}"
-          files: output/rent_contracts_${{ env.RELEASE_DATE }}.parquet
+          tag: "rent_contracts_${{ steps.set_release_date.outputs.RELEASE_DATE }}"
+          name: "Rent Contracts Release ${{ steps.set_release_date.outputs.RELEASE_DATE }}"
+          files: |
+            output/rent_contracts_${{ steps.set_release_date.outputs.RELEASE_DATE }}.parquet
+            output/rent_contracts_${{ env.RELEASE_DATE }}.parquet
