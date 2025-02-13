@@ -4,7 +4,7 @@ TEST_DIR := tests
 BUILD_DIR := build
 
 # default target
-all: clean build extract
+all: clean build etl
 
 clean:
 	@echo "Clean ..."
@@ -23,9 +23,10 @@ build:
 	pip install --upgrade pip
 	pip install -r requirements.txt
 	pip install lib/
+
 # extract the data
-extract:
-	@echo "Extract ..."
+etl:
+	@echo "ETL ..."
 	python dubai_land_department.py
 
 test:
