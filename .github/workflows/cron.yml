@@ -23,10 +23,10 @@ jobs:
         shell: bash
         run: echo "RELEASE_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
 
-      - name: Install dependencies
-        env:
-          ZENODO_TOKEN: ${{ vars.ZENODO_PAT }}
-          DLD_URL: ${{ vars.DLD_URL }}
+      - name: Set Environment variables
+        run: |
+          echo "ZENODO_TOKEN=${{ vars.ZENODO_PAT }}" >> $GITHUB_ENV
+          echo "DLD_URL=${{ vars.DLD_URL }}" >> $GITHUB_ENV
 
       - name: Generate Parquet Dataset       
         run: |
