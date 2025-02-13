@@ -7,7 +7,9 @@ from lib.logging_helpers import get_logger, configure_root_logger
 from lib.transform.rent_contracts_transformer import RentContractsTransformer
 
 configure_root_logger(logfile="extract.log", loglevel="DEBUG")
-logger = get_logger("Main")
+logger = get_logger("DLD")
+from dotenv import load_dotenv
+load_dotenv()
 
 def download_rent_contracts(url, filename):
     logger.info("Downloading rent contracts")
