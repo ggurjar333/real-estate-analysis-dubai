@@ -49,21 +49,26 @@ def upload_to_zenodo(file):
     logger.addFilter(MaskSensitiveDataFilter())
     try:
         uploader = ZenodoUploader(access_token=os.getenv("ZENODO_TOKEN"))
-        title = f"Rent Contracts {date.today()}"
+        title = f"DLD - Rent Contracts"
         description = "Acquired from Dubai Land Department Website"
         creators = [{'name': 'Gaurav Gurjar'}]
 
         # Check if deposition with the same title already exists
         depositions = uploader.list_depositions()
         for deposition in depositions:
-            if deposition['title'] == title:
-                logger.info(f"Deposition with title '{title}' already exists. Skipping upload.")
-                return
+            if not deposition['title'] == title:
+                logger.info(f"{title} - Deposition created")
+                deposition = uploader.create_deposition(title, description, creators)
+                deposition_id = deposition['id']
 
-        deposition = uploader.create_deposition(title, description, creators)
-        deposition_id = deposition['id']
-        uploader.save_to_drafts(deposition_id=deposition_id, file_path=file)
-        uploader.publish_deposition(deposition_id)
+            if deposition['title'] == title:
+                logger.info(f"Deposition - {title} already exists. Skipping upload.")
+                deposition_id = deposition['id']
+
+            logger.info(f"{title} and id: {deposition['id']}")
+            uploader.save_to_drafts(deposition_id=deposition_id, file_path=file)
+            uploader.publish_deposition(deposition_id)
+            return
     except (Exception, FileNotFoundError) as e:
         logger.error(f"Error uploading to Zenodo: {e}")
 
