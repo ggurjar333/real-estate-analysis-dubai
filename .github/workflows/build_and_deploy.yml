@@ -34,17 +34,9 @@ jobs:
   
       - name: Set Environment variables
         run: |
-          echo "ZENODO_TOKEN=${{ secrets.ZENODO_PAT }}" >> $GITHUB_ENV
+          echo "ZENODO_TOKEN=${{ secrets.ZENODO_TOKEN }}" >> $GITHUB_ENV
           echo "DLD_URL=${{ secrets.DLD_URL }}" >> $GITHUB_ENV
   
       - name: Generate Parquet Dataset       
         run: |
           make all
-        
-      - name: Create GitHub Dataset Release
-        uses: ncipollo/release-action@v1
-        with:
-          tag: "rent_contracts"
-          name: "Rent Contracts Release ${{ RELEASE_DATE }}"
-          artifacts: |
-            "output/rent_contracts_${{ RELEASE_DATE }}.parquet"

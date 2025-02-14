@@ -14,7 +14,8 @@ make all
 
 The folder structure of this project is as follows:
 
-- `lib/`: This folder contains the source code for the data extraction and analysis.
+- `lib/`: This folder contains the source code for the data extraction, transformation and analysis.
+- `output/`: This folder is empty because it is just a temp folder to save transformed data file.
 - `tests/`: This folder contains the tests for the code.
 
 ## Getting Started
