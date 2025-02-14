@@ -27,6 +27,6 @@ jobs:
           echo "ZENODO_TOKEN=${{ secrets.ZENODO_TOKEN }}" >> $GITHUB_ENV
           echo "DLD_URL=${{ secrets.DLD_URL }}" >> $GITHUB_ENV
   
-      - name: Test Dataset       
+      - name: Clean - Build - ETL - Test Dataset       
         run: |
-          make test
+          make all

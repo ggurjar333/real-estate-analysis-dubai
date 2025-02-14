@@ -44,31 +44,26 @@ def transform_rent_contracts(input_file, output_file):
     else:
         logger.info(f"{output_file} exists")
 
-def upload_to_zenodo(file):
-    logger.debug(f"Upload {file} to Zenodo ")
+def upload_to_zenodo(files):
+    logger.debug(f"Uploading to Zenodo... ")
     logger.addFilter(MaskSensitiveDataFilter())
     try:
         uploader = ZenodoUploader(access_token=os.getenv("ZENODO_TOKEN"))
-        title = f"DLD - Rent Contracts"
+        title = f"DLD - Rent Contracts - {date.today()}"
         description = "Acquired from Dubai Land Department Website"
         creators = [{'name': 'Gaurav Gurjar'}]
 
-        # Check if deposition with the same title already exists
-        depositions = uploader.list_depositions()
-        for deposition in depositions:
-            if not deposition['title'] == title:
-                logger.info(f"{title} - Deposition created")
-                deposition = uploader.create_deposition(title, description, creators)
-                deposition_id = deposition['id']
-
-            if deposition['title'] == title:
-                logger.info(f"Deposition - {title} already exists. Skipping upload.")
-                deposition_id = deposition['id']
-
-            logger.info(f"{title} and id: {deposition['id']}")
+        # Create a new deposition if one does not exist
+        deposition = uploader.create_deposition(title, description, creators)
+        deposition_id = deposition['id']
+        logger.info(f"Created new deposition with ID {deposition_id}")
+        # Upload each file to the deposition
+        for file in files:
             uploader.save_to_drafts(deposition_id=deposition_id, file_path=file)
-            uploader.publish_deposition(deposition_id)
-            return
+            logger.info(f"Uploaded {file} to deposition {deposition_id}")
+        # Publish the deposition
+        uploader.publish_deposition(deposition_id)
+        logger.info(f"Published deposition {deposition_id}")
     except (Exception, FileNotFoundError) as e:
         logger.error(f"Error uploading to Zenodo: {e}")
 
@@ -79,15 +74,15 @@ def main():
         logger.error("DLD_URL environment variable not set.")
         return
 
-    csv_filename = f'rent_contracts_{date.today()}.csv'
+    csv_filename = f'output/rent_contracts_{date.today()}.csv'
     parquet_filename = f'output/rent_contracts_{date.today()}.parquet'
 
     try:
         download_rent_contracts(url, csv_filename)
         transform_rent_contracts(csv_filename, parquet_filename)
-        upload_to_zenodo(parquet_filename)
+        upload_to_zenodo([parquet_filename])
     except Exception as e:
-        logger.error(f"An error occurred in the main process: {e}")
+        logger.error(f"An error occurred in the ETL process: {e}")
 
 if __name__ == "__main__":
     main()

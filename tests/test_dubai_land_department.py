@@ -1,31 +1,46 @@
-from unittest.mock import patch, MagicMock
-from dubai_land_department import rent_contracts_downloader
+from datetime import date
+import os
+import pytest
+import sys
+import requests
+import polars as pl
 
-@patch('lib.extract.dubai_land_department.RentContractsDownloader.run')
-@patch('lib.extract.dubai_land_department.subprocess.run')
-@patch('lib.extract.dubai_land_department.os.getenv')
-def test_rent_contracts_downloader(mock_getenv, mock_subprocess_run, mock_rent_contracts_downloader_run):
-    # Mock environment variable
-    mock_getenv.return_value = 'http://example.com/data.csv'
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from lib.workspace.zenodo_client import Zenodo
 
-    # Mock subprocess.run for file size check and git commands
-    mock_subprocess_run.side_effect = [
-        MagicMock(stdout='10M\trent_contracts_2023-10-10.csv\n'),  # Mock du command output
-        MagicMock(),  # Mock git lfs track
-        MagicMock(),  # Mock git add
-        MagicMock(),  # Mock git commit
-        MagicMock()   # Mock git push
-    ]
+@pytest.fixture
+def zenodo_repo():
+    return Zenodo(access_token=os.getenv("ZENODO_TOKEN"))
 
-    # Call the function
-    rent_contracts_downloader()
+def get_filtered_deposition(depositions, title):
+    return next((deposition for deposition in depositions if deposition['title'] == title), None)
 
-    # Assertions
-    mock_getenv.assert_called_once_with('DLD_URL')
-    mock_rent_contracts_downloader_run.assert_called_once_with('http://example.com/data.csv', 'rent_contracts_2023-10-10.csv')
-    assert mock_subprocess_run.call_count == 5
-    mock_subprocess_run.assert_any_call(['du', '-h', 'rent_contracts_2023-10-10.csv'], capture_output=True, text=True)
-    mock_subprocess_run.assert_any_call(['git', 'lfs', 'track', 'rent_contracts_2023-10-10.csv'])
-    mock_subprocess_run.assert_any_call(['git', 'add', 'rent_contracts_2023-10-10.csv'])
-    mock_subprocess_run.assert_any_call(['git', 'commit', '-m', 'Add rent_contracts_2023-10-10.csv'])
-    mock_subprocess_run.assert_any_call(['git', 'push'])
+def test_list_depositions(zenodo_repo):
+    title = f'DLD - Rent Contracts - {date.today()}'
+    depositions = zenodo_repo.list_depositions()
+    filtered_deposition = get_filtered_deposition(depositions, title)
+    
+    assert filtered_deposition is not None
+    assert filtered_deposition['title'] == title
+    assert len(filtered_deposition['files']) > 0
+    assert filtered_deposition['files'][0]['filename'] == f'rent_contracts_{date.today()}.parquet'
+
+def test_parquet(zenodo_repo):
+    title = f'DLD - Rent Contracts - {date.today()}'
+    depositions = zenodo_repo.list_depositions()
+    filtered_deposition = get_filtered_deposition(depositions, title)
+    
+    assert filtered_deposition is not None
+    assert filtered_deposition["links"]["files"] is not None
+    assert filtered_deposition['title'] == title
+    
+    file_url = f"{list(filtered_deposition['links'].values())[0]}/files/rent_contracts_{date.today()}.parquet/content"
+    response = requests.get(file_url, stream=True)
+    
+    with open('temp.parquet', 'wb') as f:
+        for chunk in response.iter_content(chunk_size=1024):
+            f.write(chunk)
+    
+    df = pl.read_parquet('temp.parquet')
+    print(df.head(5))
+    assert len(df) > 0
