@@ -21,22 +21,12 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: '3.9'
-
-      - name: Configure Git identity
-        run: |
-          git config --global user.name "ggurjar333"
-          git config --global user.email "ggurjar333@gmail.com"
-
-      - name: Set RELEASE_DATE
-        id: set_release_date
-        shell: bash
-        run: echo "RELEASE_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
-  
+ 
       - name: Set Environment variables
         run: |
           echo "ZENODO_TOKEN=${{ secrets.ZENODO_TOKEN }}" >> $GITHUB_ENV
           echo "DLD_URL=${{ secrets.DLD_URL }}" >> $GITHUB_ENV
   
-      - name: Generate Parquet Dataset       
+      - name: Test Dataset       
         run: |
-          make all
+          make test
