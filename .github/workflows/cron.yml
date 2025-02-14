@@ -2,7 +2,7 @@ name: Cron Job - Generate Parquet Dataset
 
 on:
   schedule:
-    - cron: '30 5 * * 5'
+    - cron: '30 5 * * *'
 
 jobs:
   run_job:

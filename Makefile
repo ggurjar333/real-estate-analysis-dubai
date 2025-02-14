@@ -2,9 +2,10 @@
 SOURCE_DIR := lib
 TEST_DIR := tests
 BUILD_DIR := build
+TEMP_DIR := output
 
 # default target
-all: clean build etl
+all: build etl clean test
 
 clean:
 	@echo "Clean ..."
@@ -15,6 +16,8 @@ clean:
 	find . -type f -name '*.pyc' -delete
 	find . -type f -name '*.pyo' -delete
 	find . -type f -name '*~' -delete
+	rm -rf $(TEMP_DIR)/*.csv
+	rm -rf $(TEMP_DIR)/*.parquet
 
 
 build:
