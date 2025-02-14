@@ -80,7 +80,7 @@ def main():
     try:
         download_rent_contracts(url, csv_filename)
         transform_rent_contracts(csv_filename, parquet_filename)
-        upload_to_zenodo([parquet_filename, csv_filename])
+        upload_to_zenodo([parquet_filename])
     except Exception as e:
         logger.error(f"An error occurred in the ETL process: {e}")
 
