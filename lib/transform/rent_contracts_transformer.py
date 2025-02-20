@@ -33,8 +33,10 @@ class RentContractsTransformer:
                 if dtype in [pl.Int32, pl.Float64]
             ]
 
+            column_names = [string_columns + numeric_columns]
+
             # Reorder columns: first strings, then numerics.
-            lf = lf.select(string_columns + numeric_columns)
+            lf = lf.select(column_names)
 
             # Write the LazyFrame to Parquet.
             # Note: This uses the old streaming engine, which is deprecated.
