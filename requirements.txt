@@ -6,3 +6,4 @@ cmake
 setuptools
 polars
 pytest
+jupyter

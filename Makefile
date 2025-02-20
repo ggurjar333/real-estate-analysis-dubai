@@ -5,7 +5,7 @@ BUILD_DIR := build
 TEMP_DIR := output
 
 # default target
-all: build etl clean test
+all: build etl notebook clean test
 
 clean:
 	@echo "Clean ..."
@@ -31,6 +31,10 @@ build:
 etl:
 	@echo "ETL ..."
 	python dubai_land_department.py
+
+notebook:
+	@echo "Notebook ..."
+	jupyter nbconvert --to notebook --execute insights.ipynb --output insights.ipynb
 
 test:
 	@echo "Test ..."
