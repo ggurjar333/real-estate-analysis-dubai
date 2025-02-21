@@ -18,25 +18,6 @@ class RentContractsTransformer:
                 null_values=["null"],
                 schema_overrides={"ejari_property_sub_type_id": pl.Int64}
             )
-            # Resolve the schema once to get column names and types.
-            schema = lf.collect_schema()
-            column_names = schema.keys()
-            column_types = schema.values()
-
-            # Select columns by type without triggering performance warnings.
-            string_columns = [
-                col for col, dtype in zip(column_names, column_types) 
-                if dtype == pl.Utf8
-            ]
-            numeric_columns = [
-                col for col, dtype in zip(column_names, column_types) 
-                if dtype in [pl.Int32, pl.Float64]
-            ]
-
-            column_names = string_columns + numeric_columns
-
-            # Reorder columns: first strings, then numerics.
-            lf = lf.select(column_names)
 
             # Write the LazyFrame to Parquet.
             # Note: This uses the old streaming engine, which is deprecated.
