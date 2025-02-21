@@ -20,8 +20,8 @@ class RentContractsTransformer:
             )
             # Resolve the schema once to get column names and types.
             schema = lf.collect_schema()
-            column_names = schema.names()
-            column_types = schema.dtypes()
+            column_names = schema.keys()
+            column_types = schema.values()
 
             # Select columns by type without triggering performance warnings.
             string_columns = [
@@ -33,7 +33,7 @@ class RentContractsTransformer:
                 if dtype in [pl.Int32, pl.Float64]
             ]
 
-            column_names = [string_columns + numeric_columns]
+            column_names = string_columns + numeric_columns
 
             # Reorder columns: first strings, then numerics.
             lf = lf.select(column_names)
