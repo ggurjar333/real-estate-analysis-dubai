@@ -32,7 +32,7 @@ class GitHubReleasePublisher:
     """
     def __init__(self, repo):
         self.repo = repo
-        self.token = os.getenv("GITHUB_TOKEN")
+        self.token = os.getenv("GH_TOKEN")
         if not self.token:
             logger.error("GITHUB_TOKEN not found in environment variables")
             raise ValueError("GITHUB_TOKEN not set")
