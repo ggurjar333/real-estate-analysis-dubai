@@ -26,8 +26,3 @@ def configure_root_logger(logfile: str, loglevel: str = "INFO"):
         file_logger = logging.FileHandler(logfile)
         file_logger.setFormatter(logging.Formatter(log_format))
         logger.addHandler(file_logger)
-
-class MaskSensitiveDataFilter(logging.Filter):
-    def filter_zenodo(self, record):
-        record.msg = record.getMessage().replace("zenodo.org", "[REDACTED]").replace("access_token=", "access_token=[REDACTED]")
-        return True

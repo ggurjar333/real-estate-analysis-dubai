@@ -5,9 +5,9 @@ from dotenv import load_dotenv
 import logging
 
 from lib.extract.rent_contracts_downloader import RentContractsDownloader
-from lib.logging_helpers import MaskSensitiveDataFilter, get_logger, configure_root_logger
+from lib.logging_helpers import get_logger, configure_root_logger
 from lib.transform.rent_contracts_transformer import RentContractsTransformer
-from lib.workspace.zenodo_client import ZenodoUploader
+from lib.workspace.github_client import GitHubReleasePublisher
 
 load_dotenv()
 
@@ -44,29 +44,17 @@ def transform_rent_contracts(input_file, output_file):
     else:
         logger.info(f"{output_file} exists")
 
-def upload_to_zenodo(files):
-    logger.debug(f"Uploading to Zenodo... ")
-    logger.addFilter(MaskSensitiveDataFilter())
+
+def publish_to_github_release(files):
+    """
+    Data files uploads to GitHub Release
+    """
     try:
-        uploader = ZenodoUploader(access_token=os.getenv("ZENODO_TOKEN"))
-        title = f"DLD - Rent Contracts - {date.today()}"
-        description = "Acquired from Dubai Land Department Website"
-        creators = [{'name': 'Gaurav Gurjar'}]
+        publisher = GitHubReleasePublisher('ggurjar333/real-estate-analysis-dubai')
+        publisher.publish(files=files)
 
-        # Create a new deposition if one does not exist
-        deposition = uploader.create_deposition(title, description, creators)
-        deposition_id = deposition['id']
-        logger.info(f"Created new deposition with ID {deposition_id}")
-        # Upload each file to the deposition
-        for file in files:
-            uploader.save_to_drafts(deposition_id=deposition_id, file_path=file)
-            logger.info(f"Uploaded {file} to deposition {deposition_id}")
-        # Publish the deposition
-        uploader.publish_deposition(deposition_id)
-        logger.info(f"Published deposition {deposition_id}")
-    except (Exception, FileNotFoundError) as e:
-        logger.error(f"Error uploading to Zenodo: {e}")
-
+    except Exception as e:
+        logger.error(f"An unexpected error occurred: {e}")    
 
 def main():
     url = os.getenv("DLD_URL")
@@ -75,12 +63,12 @@ def main():
         return
 
     csv_filename = f'output/rent_contracts_{date.today()}.csv'
-    parquet_filename = f'output/rent_contracts_{date.today()}.parquet'
+    parquet_filename = f'dld_rent_contracts_{date.today()}.parquet'
 
     try:
         download_rent_contracts(url, csv_filename)
         transform_rent_contracts(csv_filename, parquet_filename)
-        # upload_to_zenodo([parquet_filename])
+        publish_to_github_release([parquet_filename])
     except Exception as e:
         logger.error(f"An error occurred in the ETL process: {e}")
 
