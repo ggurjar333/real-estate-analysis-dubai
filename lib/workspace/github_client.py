@@ -1,8 +1,10 @@
+from dotenv import load_dotenv
 import requests
 from datetime import date
 import logging
 import os
 
+load_dotenv()
 logger = logging.getLogger(__name__)
 
 GITHUB_API_URL = "https://api.github.com"
@@ -34,8 +36,8 @@ class GitHubReleasePublisher:
         self.repo = repo
         self.token = os.getenv("GH_TOKEN")
         if not self.token:
-            logger.error("GITHUB_TOKEN not found in environment variables")
-            raise ValueError("GITHUB_TOKEN not set")
+            logger.error("GH_TOKEN not found in environment variables")
+            raise ValueError("GH_TOKEN not set")
         self.headers = {
             "Authorization": f"token {self.token}",
             "Accept": "application/vnd.github.v3+json"
