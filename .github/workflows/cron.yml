@@ -38,3 +38,18 @@ jobs:
           release_name: Release ${{ github.ref_name }}
           draft: false
           prerelease: false
+
+      - name: Get File Name
+        id: get_filename
+        run: echo "filename=dld_rent_contracts_$(date +%Y-%m-%d).parquet" >> $GITHUB_ENV
+
+      - name: Upload Parquet File
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.filename }}
+          asset_name: rent_contracts_${{ env.filename }}
+          asset_content_type: application/octet-stream
