@@ -23,10 +23,36 @@ jobs:
           python-version: '3.9'
  
       - name: Set Environment variables
-        run: |
-          echo "ZENODO_TOKEN=${{ secrets.ZENODO_TOKEN }}" >> $GITHUB_ENV
+        run: | 
           echo "DLD_URL=${{ secrets.DLD_URL }}" >> $GITHUB_ENV
+          echo "GH_TOKEN=${{ secrets.GH_TOKEN }}" >> $GITHUB_ENV
   
       - name: Clean - Build - ETL - Test Dataset       
         run: |
           make all
+
+      - name: Get File Name
+        id: get_filename
+        run: echo "filename=dld_rent_contracts_$(date +%Y-%m-%d).parquet" >> $GITHUB_ENV
+      
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+        
+      - name: Upload Parquet File
+        uses: actions/upload-release-asset@v1
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.filename }}
+          asset_name: ${{ env.filename }}
+          asset_content_type: application/octet-stream
+                  
