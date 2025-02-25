@@ -26,8 +26,6 @@ jobs:
         env: 
           ACTIONS_RUNNER_DEBUG: true
           ACTIONS_STEP_DEBUG: true
-          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
-          KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
           DLD_URL: ${{ secrets.DLD_URL }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}  
         run: |
@@ -35,8 +33,11 @@ jobs:
 
       - name: Push Kaggle Kernel
         uses: harupy/push-kaggle-kernel@master
+        env:
+          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+          KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
         with:
-          id: ${{ secrets.KAGGLE_USERNAME }}/rent-contracts-dubai
+          id: gauravgurjar/rent-contracts-dubai
           title: Rent Contracts - Dubai
           code_file: insights.ipynb
           language: python
