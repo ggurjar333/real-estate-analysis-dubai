@@ -34,7 +34,7 @@ jobs:
           KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
           KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
         with:
-          id: "${{ secrets.KAGGLE_USERNAME }}/rent-contracts-dubai"
+          id: "gauravgurjar/rent-contracts-dubai"
           title: "Rent Contracts - Dubai"
           code_file: "insights.ipynb"
           language: "python"
