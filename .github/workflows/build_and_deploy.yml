@@ -31,15 +31,20 @@ jobs:
         run: |
           make all
 
-      - name: Push and Run Kaggle Notebook
+      - name: Push Kaggle Kernel
         uses: harupy/push-kaggle-kernel@master
+        with:
+          id: gauravgurjar/rent-contracts-dubai
+          title: Rent Contracts - Dubai
+          code_file: insights.ipynb
+          language: python
+          kernel_type: notebook
+          is_private: false
+          enable_gpu: false
+          enable_internet: false
         env:
+          ACTIONS_RUNNER_DEBUG: true
+          ACTIONS_STEP_DEBUG: true
           KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
           KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
-        with:
-          id: "${{ secrets.KAGGLE_USERNAME }}/rent-contracts-dubai"
-          title: "Rent Contracts - Dubai"
-          code_file: "insights.ipynb"
-          language: "python"
-          kernel_type: "notebook"
-          is_private: false
+      
