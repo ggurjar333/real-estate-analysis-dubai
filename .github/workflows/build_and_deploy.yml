@@ -3,7 +3,7 @@ name: Dev - Build and Deploy
 on:
   push:
     branches:
-      - main
+      - dev
     tags: 
       - '*'
 
@@ -26,8 +26,6 @@ jobs:
         run: | 
           echo "DLD_URL=${{ secrets.DLD_URL }}" >> $GITHUB_ENV
           echo "GH_TOKEN=${{ secrets.GH_TOKEN }}" >> $GITHUB_ENV
-          echo "$KAGGLE_USERNAME=${{ secrets.KAGGLE_USERNAME }}" >> $GITHUB_ENV
-          echo "$KAGGLE_KEY=${{ secrets.KAGGLE_KEY }}" >> $GITHUB_ENV
   
       - name: Clean - Build - ETL - Test Dataset       
         run: |
