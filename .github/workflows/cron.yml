@@ -19,26 +19,11 @@ jobs:
         with:
           python-version: '3.9'
     
-      - name: Set Environment variables
-        run: |
-          echo "DLD_URL=${{ secrets.DLD_URL }}" >> $GITHUB_ENV
-          echo "GH_TOKEN=${{ secrets.GH_TOKEN }}" >> $GITHUB_ENV
-          echo "KAGGLE_USERNAME=${{ secrets.KAGGLE_USERNAME }}" >> $GITHUB_ENV
-          echo "KAGGLE_KEY=${{ secrets.KAGGLE_KEY }}" >> $GITHUB_ENV
-    
       - name: Generate Parquet Dataset       
-        run: |
-          make all
-
-      - name: Push and Run Kaggle Notebook
-        uses: harupy/push-kaggle-kernel@master
         env:
           KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
           KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
-        with:
-          id: "${{ secrets.KAGGLE_USERNAME }}/rent-contracts-dubai"
-          title: "Rent Contracts - Dubai"
-          code_file: "insights.ipynb"
-          language: "python"
-          kernel_type: "notebook"
-          is_private: false
+          DLD_URL: ${{ secrets.DLD_URL }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          make all

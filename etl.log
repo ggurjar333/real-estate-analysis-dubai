@@ -1,0 +1,6 @@
+2025-02-25 11:06:11,614 [   ERROR] READ.ETL:62 DLD_URL environment variable not set.
+2025-02-25 11:06:48,130 [   ERROR] READ.ETL:70 DLD_URL environment variable not set.
+2025-02-25 11:08:31,582 [   ERROR] READ.ETL:69 DLD_URL environment variable not set.
+2025-02-25 11:09:09,768 [   ERROR] READ.ETL:69 DLD_URL environment variable not set.
+2025-02-25 11:09:09,769 [   ERROR] READ.ETL:75 An error occurred in the ETL process.
+2025-02-25 11:12:16,105 [   ERROR] READ.ETL:75 An error occurred in the ETL process.

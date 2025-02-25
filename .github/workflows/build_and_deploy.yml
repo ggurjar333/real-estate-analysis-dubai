@@ -3,7 +3,7 @@ name: Dev - Build and Deploy
 on:
   push:
     branches:
-      - main
+      - dev
     tags: 
       - '*'
 
@@ -13,35 +13,19 @@ jobs:
     env:
       ACTIONS_RUNNER_DEBUG: true
       ACTIONS_STEP_DEBUG: true  
+      DLD_URL: ${{ secrets.DLD_URL }}
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}  
+      KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+      KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: '3.9'
  
-      - name: Set Environment variables
-        run: | 
-          echo "DLD_URL=${{ secrets.DLD_URL }}" >> $GITHUB_ENV
-          echo "GH_TOKEN=${{ secrets.GH_TOKEN }}" >> $GITHUB_ENV
-          echo "$KAGGLE_USERNAME=${{ secrets.KAGGLE_USERNAME }}" >> $GITHUB_ENV
-          echo "$KAGGLE_KEY=${{ secrets.KAGGLE_KEY }}" >> $GITHUB_ENV
-  
-      - name: Clean - Build - ETL - Test Dataset       
+      - name: Generate Parquet Dataset
         run: |
           make all
-
-      - name: Push and Run Kaggle Notebook
-        uses: harupy/push-kaggle-kernel@master
-        env:
-          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
-          KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
-        with:
-          id: "${{ secrets.KAGGLE_USERNAME }}/rent-contracts-dubai"
-          title: "Rent Contracts - Dubai"
-          code_file: "insights.ipynb"
-          language: "python"
-          kernel_type: "notebook"
-          is_private: false
