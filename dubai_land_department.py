@@ -7,7 +7,7 @@ import logging
 from lib.extract.rent_contracts_downloader import RentContractsDownloader
 from lib.logging_helpers import get_logger, configure_root_logger
 from lib.transform.rent_contracts_transformer import RentContractsTransformer
-from lib.workspace.github_client import GitHubReleasePublisher
+from lib.workspace.github_client import GitHubRelease
 
 load_dotenv()
 
@@ -50,7 +50,7 @@ def publish_to_github_release(files):
     Data files uploads to GitHub Release
     """
     try:
-        publisher = GitHubReleasePublisher('ggurjar333/real-estate-analysis-dubai')
+        publisher = GitHubRelease('ggurjar333/real-estate-analysis-dubai')
         publisher.publish(files=files)
 
     except Exception as e:
@@ -66,11 +66,12 @@ def main():
     parquet_filename = f'dld_rent_contracts_{date.today()}.parquet'
 
     try:
+        release_checker = GitHubRelease('ggurjar333/real-estate-analysis-dubai')
+        release_checker.release_exists(f'release-{date.today()}')
+    except:
         download_rent_contracts(url, csv_filename)
         transform_rent_contracts(csv_filename, parquet_filename)
         publish_to_github_release([parquet_filename])
-    except Exception as e:
-        logger.error(f"An error occurred in the ETL process: {e}")
 
 if __name__ == "__main__":
     main()

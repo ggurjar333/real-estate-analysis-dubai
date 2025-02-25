@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 GITHUB_API_URL = "https://api.github.com"
 
-class GitHubReleasePublisher:
+class GitHubRelease:
     """
     A class to handle publishing releases to a GitHub repository.
 
@@ -87,3 +87,28 @@ class GitHubReleasePublisher:
             self.upload_files(release, files)
         except Exception as e:
             logger.error(f"Failed to publish release: {e}")
+    
+
+    def release_exists(self, tag_name):
+        """
+        Checks if a release with the specified tag name already exists.
+
+        Args:
+            tag_name (str): The tag name of the release to check.
+
+        Returns:
+            bool: True if the release exists, False otherwise.
+        """
+        try:
+            response = requests.get(f"{GITHUB_API_URL}/repos/{self.repo}/releases/tags/{tag_name}", headers=self.headers)
+            if response.status_code == 200:
+                logger.info(f"Release with tag {tag_name} already exists.")
+                return True
+            elif response.status_code == 404:
+                logger.info(f"Release with tag {tag_name} does not exist.")
+                return False
+            else:
+                response.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            logger.error(f"GitHub API error: {e}")
+            raise
