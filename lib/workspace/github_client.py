@@ -99,16 +99,7 @@ class GitHubRelease:
         Returns:
             bool: True if the release exists, False otherwise.
         """
-        try:
-            response = requests.get(f"{GITHUB_API_URL}/repos/{self.repo}/releases/tags/{tag_name}", headers=self.headers)
-            if response.status_code == 200:
-                logger.info(f"Release with tag {tag_name} already exists.")
-                return True
-            elif response.status_code == 404:
-                logger.info(f"Release with tag {tag_name} does not exist.")
-                return False
-            else:
-                response.raise_for_status()
-        except requests.exceptions.RequestException as e:
-            logger.error(f"GitHub API error: {e}")
-            raise
+        response = requests.get(f"{GITHUB_API_URL}/repos/{self.repo}/releases/tags/{tag_name}", headers=self.headers)
+        if response.status_code == 200:
+            logger.info(f"Release with tag {tag_name} already exists.")
+            return True
