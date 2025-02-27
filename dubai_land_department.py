@@ -65,18 +65,10 @@ def main():
     csv_filename = f'output/rent_contracts_{date.today()}.csv'
     parquet_filename = f'dld_rent_contracts_{date.today()}.parquet'
 
-    # try:
-    release_checker = GitHubRelease('ggurjar333/real-estate-analysis-dubai')
-    release_name = f'release-{date.today()}'
-    
-    if not release_checker.release_exists(release_name):
-        download_rent_contracts(url, csv_filename)
-        transform_rent_contracts(csv_filename, parquet_filename)
-        publish_to_github_release([parquet_filename])
-    else:
-        print(f"Release '{release_name}' already exists. No action taken.")
-            
-    # except:
+    try:
+        release_checker = GitHubRelease('ggurjar333/real-estate-analysis-dubai')
+        release_checker.release_exists(f'release-{date.today()}')
+    except:
         download_rent_contracts(url, csv_filename)
         transform_rent_contracts(csv_filename, parquet_filename)
         publish_to_github_release([parquet_filename])
