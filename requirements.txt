@@ -7,3 +7,4 @@ setuptools
 polars
 pytest
 jupyter
+requests-mock
