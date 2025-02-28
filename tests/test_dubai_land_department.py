@@ -6,41 +6,46 @@ import requests
 import polars as pl
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from lib.workspace.zenodo_client import Zenodo
+from lib.workspace.github_client import GitHubRelease
 
-@pytest.fixture
-def zenodo_repo():
-    return Zenodo(access_token=os.getenv("ZENODO_TOKEN"))
+import pytest
+import requests
+import requests_mock
 
-def get_filtered_deposition(depositions, title):
-    return next((deposition for deposition in depositions if deposition['title'] == title), None)
+class TestGitHubRelease:
+    @classmethod
+    def setup_class(cls):
+        """Setup resources before any tests run."""
+        cls.repo = "test_owner/test_repo"
+        cls.github_release = GitHubRelease(cls.repo)
+        cls.mock_release = {
+            "upload_url": "https://api.github.com/repos/test_owner/test_repo/releases/1/assets{?name,label}",
+            "name": "Test Release"
+        }
+    
+    @classmethod
+    def teardown_class(cls):
+        """Cleanup resources after all tests are completed."""
+        cls.github_release = None
+    
+    def test_create_release(self, requests_mock):
+        """Test creating a new GitHub release."""
+        requests_mock.post(f"https://api.github.com/repos/{self.repo}/releases", json=self.mock_release, status_code=201)
+        release = self.github_release.create_release()
+        assert release == self.mock_release
+    
+    def test_upload_files(self, requests_mock, tmp_path):
+        """Test uploading files to a GitHub release."""
+        file_path = tmp_path / "test_file.txt"
+        file_path.write_text("Test content")
+        requests_mock.post(self.mock_release["upload_url"].split("{")[0] + "?name=test_file.txt", status_code=201)
+        self.github_release.upload_files(self.mock_release, [str(file_path)])
+    
+    def test_release_exists(self, requests_mock):
+        """Test checking if a release exists."""
+        tag_name = "release-2025-02-28"
+        requests_mock.get(f"https://api.github.com/repos/{self.repo}/releases/tags/{tag_name}", status_code=200)
+        assert self.github_release.release_exists(tag_name) is True
 
-def test_list_depositions(zenodo_repo):
-    title = f'DLD - Rent Contracts - {date.today()}'
-    depositions = zenodo_repo.list_depositions()
-    filtered_deposition = get_filtered_deposition(depositions, title)
-    
-    assert filtered_deposition is not None
-    assert filtered_deposition['title'] == title
-    assert len(filtered_deposition['files']) > 0
-    assert filtered_deposition['files'][0]['filename'] == f'rent_contracts_{date.today()}.parquet'
-
-def test_parquet(zenodo_repo):
-    title = f'DLD - Rent Contracts - {date.today()}'
-    depositions = zenodo_repo.list_depositions()
-    filtered_deposition = get_filtered_deposition(depositions, title)
-    
-    assert filtered_deposition is not None
-    assert filtered_deposition["links"]["files"] is not None
-    assert filtered_deposition['title'] == title
-    
-    file_url = f"{list(filtered_deposition['links'].values())[0]}/files/rent_contracts_{date.today()}.parquet/content"
-    response = requests.get(file_url, stream=True)
-    
-    with open('temp.parquet', 'wb') as f:
-        for chunk in response.iter_content(chunk_size=1024):
-            f.write(chunk)
-    
-    df = pl.read_parquet('temp.parquet')
-    print(df.head(5))
-    assert len(df) > 0
+        requests_mock.get(f"https://api.github.com/repos/{self.repo}/releases/tags/{tag_name}", status_code=404)
+        assert self.github_release.release_exists(tag_name) is False

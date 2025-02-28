@@ -5,7 +5,7 @@ BUILD_DIR := build
 TEMP_DIR := output
 
 # default target
-all: build etl 
+all: build etl test 
 
 clean:
 	@echo "Clean ..."
