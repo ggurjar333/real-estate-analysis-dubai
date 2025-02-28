@@ -103,3 +103,6 @@ class GitHubRelease:
         if response.status_code == 200:
             logger.info(f"Release with tag {tag_name} already exists.")
             return True
+        if response.status_code == 404:
+            logger.info(f"No release found with tag {tag_name}.")
+            return False
