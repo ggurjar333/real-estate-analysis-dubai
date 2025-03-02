@@ -45,12 +45,12 @@ def transform_rent_contracts(input_file, output_file):
     else:
         logger.info(f"{output_file} exists")
 
-def get_property_usage(input_file, output_file, github_release):
+def get_property_usage(input_file, output_file):
     if not os.path.isfile(input_file):
         logger.error(f"{input_file} not found. Cannot get property usage.")
         return
     try:
-        property_usage = PropertyUsage(output_file, github_release)
+        property_usage = PropertyUsage(output_file)
         property_usage.transform(input_file)
         logger.info(f"Property usage saved to {output_file}")
     except Exception as e:
@@ -87,7 +87,7 @@ def main():
     if not release_checker.release_exists(release_name):
         download_rent_contracts(url, csv_filename)
         transform_rent_contracts(csv_filename, parquet_filename)
-        get_property_usage(parquet_filename, property_usage_report_file, release_name)
+        get_property_usage(parquet_filename, property_usage_report_file)
         publish_to_github_release([parquet_filename, property_usage_report_file])
     else:
         print(f"Release '{release_name}' already exists. No action needed.")

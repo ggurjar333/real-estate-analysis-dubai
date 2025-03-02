@@ -2,7 +2,6 @@ import logging
 import polars as pl
 from datetime import date
 
-from lib.workspace.github_client import GitHubRelease
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -21,6 +20,5 @@ class PropertyUsage:
         property_usage_count = property_usage_count.with_columns(
             pl.lit(date.today()).cast(pl.Date).alias("report_date")
         )
-        logging.info(f"Property usage count: {property_usage_count.collect()}")
         property_usage_count.sink_csv(self.output)
         
