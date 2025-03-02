@@ -11,9 +11,8 @@ class PropertyUsage:
     """
     Processes property usage data and publishes a report.
     """
-    def __init__(self, output: str, github_release: GitHubRelease):
+    def __init__(self, output: str):
         self.output = output
-        self.github_release = github_release
 
     def transform(self, input_file: str):
         lf = pl.scan_parquet(input_file)
@@ -24,12 +23,4 @@ class PropertyUsage:
         )
         logging.info(f"Property usage count: {property_usage_count.collect()}")
         property_usage_count.sink_csv(self.output)
-
-    def generate_monthly_report(self, input_file: str):
-        self.transform(input_file)
-        logging.info("Monthly report generated")
-
-    def publish_to_github_release(self, tag_name: str, release_name: str):
-        self.github_release.create_release(tag_name=tag_name, release_name=release_name)
-        self.github_release.publish(files=[self.output])
         
