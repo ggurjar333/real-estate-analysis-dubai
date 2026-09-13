@@ -372,7 +372,7 @@ class TestETLPipelineIntegration:
         with patch('run_etl_pipeline.os.path.isfile', return_value=False):
             with patch('run_etl_pipeline.logger'):
                 from run_etl_pipeline import main
-                main()
+                assert main() is True
         
         # Verify all components were called
         mock_downloader.run.assert_called_once()
@@ -386,9 +386,17 @@ class TestETLPipelineIntegration:
         """Test pipeline with missing environment variables."""
         with patch('run_etl_pipeline.logger'):
             from run_etl_pipeline import main
-            main()
+            assert main() is False
         
-        # Should log error and return early
+    @patch.dict(os.environ, {'EJARI_URL': 'https://example.com/test'})
+    @patch('run_etl_pipeline.EjariRentsDownloader')
+    def test_pipeline_download_failure_returns_false(self, mock_downloader_class):
+        mock_downloader_class.return_value.run.return_value = False
+
+        with patch('run_etl_pipeline.os.path.isfile', return_value=False):
+            with patch('run_etl_pipeline.logger'):
+                from run_etl_pipeline import main
+                assert main() is False
     
     def test_download_rent_contracts_file_exists(self):
         """Test download function when file already exists."""

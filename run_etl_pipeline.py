@@ -108,7 +108,7 @@ def main():
     url = os.getenv("EJARI_URL")
     if not url:
         logger.error("EJARI_URL environment variable not set. Please set it in .env file.")
-        return
+        return False
 
     date_str = date.today().strftime('%Y%m%d')
     output_dir = Path("output")
@@ -121,15 +121,15 @@ def main():
     try:
         if not download_rents(url, str(csv_filename)):
             logger.error("Pipeline stopped at Download phase.")
-            return
+            return False
 
         if not transform_rents(str(csv_filename), parquet_filename):
             logger.error("Pipeline stopped at Transform phase.")
-            return
+            return False
 
         if not analyze_property_usage(parquet_filename, property_usage_report):
             logger.error("Pipeline stopped at Analysis phase.")
-            return
+            return False
 
         if os.getenv("GH_TOKEN"):
             publish_artifacts_to_github([parquet_filename, property_usage_report])
@@ -141,6 +141,7 @@ def main():
         logger.info(f"  - Parquet: {parquet_filename}")
         logger.info(f"  - Report:  {property_usage_report}")
         logger.info("=" * 60)
+        return True
 
     except Exception as e:
         logger.critical(f"Pipeline failed with unhandled exception: {e}")
@@ -148,4 +149,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(0 if main() else 1)
