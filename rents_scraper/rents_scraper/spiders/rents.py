@@ -52,7 +52,7 @@ class RentsSpider(scrapy.Spider):
     def parse(self, response, skip):
         rows = (response.json().get("response") or {}).get("result") or []
         for r in rows:
-            yield {k.lower(): v for k, v in r.items()}
+            yield r
         if len(rows) == self.take:
             nxt = skip + self.take
             yield JsonRequest(url=self.url, data=self._body(nxt), callback=self.parse, cb_kwargs={"skip": nxt})

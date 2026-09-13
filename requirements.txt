@@ -7,3 +7,6 @@ polars
 pytest
 jupyter
 requests-mock
+scrapy>=2.13.4
+duckdb
+psutil

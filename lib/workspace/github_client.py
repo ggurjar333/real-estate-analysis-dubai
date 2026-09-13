@@ -68,8 +68,10 @@ class GitHubRelease:
     def upload_files(self, release, files):
         for file in files:
             try:
+                import os as _os
+
                 with open(file, 'rb') as f:
-                    upload_url = release['upload_url'].split('{')[0] + f"?name={file}"
+                    upload_url = release['upload_url'].split('{')[0] + f"?name={_os.path.basename(file)}"
                     upload_headers = self.headers.copy()
                     upload_headers["Content-Type"] = "application/octet-stream"
 
@@ -83,7 +85,15 @@ class GitHubRelease:
 
     def publish(self, files):
         try:
-            release = self.create_release()
+            tag_name = f"release-{date.today()}"
+            if self.release_exists(tag_name):
+                # reuse existing release for incremental re-runs same day
+                resp = requests.get(f"{GITHUB_API_URL}/repos/{self.repo}/releases/tags/{tag_name}", headers=self.headers)
+                resp.raise_for_status()
+                release = resp.json()
+                logger.info(f"Reusing existing release {tag_name}")
+            else:
+                release = self.create_release()
             self.upload_files(release, files)
         except Exception as e:
             logger.error(f"Failed to publish release: {e}")
