@@ -12,7 +12,8 @@ help:
 	@echo "Available targets:"
 	@echo "  all      - Build, run ETL, and execute tests"
 	@echo "  build    - Install dependencies and build the project"
-	@echo "  etl      - Execute the ETL process"
+	@echo "  etl      - Execute the Ejari rents ETL process"
+	@echo "  scrapy-rents - Scrapy rents Ejari (slow)"
 	@echo "  notebook - Execute the Jupyter Notebook"
 	@echo "  test     - Run tests"
 	@echo "  clean    - Clean build artifacts and temporary files"
@@ -38,10 +39,15 @@ build:
 	pip install -r requirements.txt
 	pip install lib/
 
-# ETL: Run the extraction, transformation, and loading process
+# ETL: Ejari rents (EJARI_URL)
 etl:
-	@echo "Running ETL process..."
+	@echo "Running Ejari rents ETL process..."
 	python run_etl_pipeline.py
+
+# Scrapy rents (paginated, slow ~10s/page) — must run inside rents_scraper/
+scrapy-rents:
+	@echo "Scraping rents via Scrapy (Ejari, slow ~10s/page)..."
+	cd rents_scraper && uv run scrapy crawl rents -O ../output/rents.jsonl --nolog || (cd rents_scraper && scrapy crawl rents -O ../output/rents.jsonl)
 
 # Test: Run all tests using pytest
 test:
@@ -49,4 +55,4 @@ test:
 	pytest .
 
 # Declare phony targets to avoid conflicts with files
-.PHONY: all help clean build etl test
+.PHONY: all help clean build etl test scrapy-rents

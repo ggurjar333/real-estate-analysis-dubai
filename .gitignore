@@ -5,4 +5,9 @@
 .idea
 __pycache__/
 build
-.csv
+**.csv
+**.DS_Store
+**.egg-info/
+**.log
+**.parquet
+**.lock

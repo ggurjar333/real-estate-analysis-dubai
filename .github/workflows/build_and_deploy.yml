@@ -13,10 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       ACTIONS_RUNNER_DEBUG: true
-      ACTIONS_STEP_DEBUG: true  
-      DLD_URL: ${{ secrets.DLD_URL }}
-      RENT_CONTRACTS: ${{ secrets.RENT_CONTRACTS }}
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}  
+      ACTIONS_STEP_DEBUG: true
+      EJARI_URL: ${{ secrets.EJARI_URL }}
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -24,7 +23,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: '3.12'
  
       - name: Generate Parquet Dataset
         run: |

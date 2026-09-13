@@ -19,10 +19,9 @@ jobs:
         with:
           python-version: '3.9'
     
-      - name: Generate Parquet Dataset       
+      - name: Generate Parquet Dataset
         env:
-          DLD_URL: ${{ secrets.DLD_URL }}
-          RENT_CONTRACTS: ${{ secrets.RENT_CONTRACTS }}
+          EJARI_URL: ${{ secrets.EJARI_URL }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           make all

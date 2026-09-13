@@ -262,7 +262,7 @@ logger.info("ETL pipeline with analytics completed successfully!")
 
 ```bash
 # .env file
-DLD_URL=https://www.dubailand.gov.ae/...
+EJARI_URL=your_ejari_endpoint_here
 GH_TOKEN=your_github_token
 ```
 

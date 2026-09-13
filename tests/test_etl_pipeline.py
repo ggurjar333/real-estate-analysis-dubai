@@ -10,8 +10,8 @@ import tempfile
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from lib.workspace.github_client import GitHubRelease
-from lib.extract.rent_contracts_downloader import RentContractsDownloader
-from lib.transform.rent_contracts_transformer import RentContractsTransformer, StarSchema
+from lib.extract.ejari_rents_downloader import EjariRentsDownloader
+from lib.transform.rents_transformer import RentsTransformer
 from lib.classes.property_usage import PropertyUsage
 from lib.classes.validators import RentContractValidator, validate_rent_contracts
 
@@ -72,196 +72,74 @@ class TestGitHubRelease:
                 GitHubRelease(self.repo)
 
 
-class TestRentContractsDownloader:
+class TestEjariRentsDownloader:
     def setup_method(self):
-        """Setup for each test method."""
-        self.test_url = "https://example.com/test"
-        self.downloader = RentContractsDownloader(self.test_url)
-    
-    @patch('lib.extract.rent_contracts_downloader.requests.get')
-    def test_fetch_rent_contracts_success(self, mock_get):
-        """Test successful HTML fetch."""
-        mock_response = Mock()
-        mock_response.content = b"<html><body>Test content</body></html>"
-        mock_response.raise_for_status.return_value = None
-        mock_get.return_value = mock_response
-        
-        result = self.downloader.fetch_rent_contracts()
-        assert result == b"<html><body>Test content</body></html>"
-        mock_get.assert_called_once_with(self.test_url, timeout=30)
-    
-    @patch('lib.extract.rent_contracts_downloader.requests.get')
-    def test_fetch_rent_contracts_retry(self, mock_get):
-        """Test retry logic on failure."""
-        mock_response = Mock()
-        mock_response.content = b"<html><body>Test content</body></html>"
-        mock_response.raise_for_status.return_value = None
-        mock_get.side_effect = [requests.exceptions.Timeout("Timeout"), mock_response]
-        
+        self.test_url = "https://example.com/rents"
+        self.downloader = EjariRentsDownloader(self.test_url)
+
+    def test_body(self):
+        body = self.downloader._body(1000, 0, from_date="09/12/2026", to_date="09/13/2026")
+        assert body["P_FROM_DATE"] == "09/12/2026"
+        assert body["P_TAKE"] == "1000"
+        assert body["P_SKIP"] == "0"
+        assert body["P_DATE_TYPE"] == "0"
+
+    @patch('lib.extract.ejari_rents_downloader.requests.post')
+    def test_run_success(self, mock_post, tmp_path):
+        mock_resp = Mock()
+        mock_resp.raise_for_status.return_value = None
+        mock_resp.json.return_value = {
+            "responseCode": 200,
+            "response": {"result": [
+                {"RN": 1, "TOTAL": 2, "ANNUAL_AMOUNT": 50000, "USAGE_EN": "Residential"},
+                {"RN": 2, "TOTAL": 2, "ANNUAL_AMOUNT": 70000, "USAGE_EN": "Commercial"},
+            ]},
+        }
+        mock_post.return_value = mock_resp
+        out = tmp_path / "rents.csv"
+        assert self.downloader.run(str(out), from_date="09/12/2026", to_date="09/13/2026") is True
+        assert out.exists()
+
+    @patch('lib.extract.ejari_rents_downloader.requests.post')
+    def test_run_gateway_error(self, mock_post, tmp_path):
+        mock_resp = Mock()
+        mock_resp.raise_for_status.return_value = None
+        mock_resp.json.return_value = {"responseCode": 420, "validationErrorsList": [{"errorMessage": "INVALID_REQUEST"}]}
+        mock_post.return_value = mock_resp
+        out = tmp_path / "rents.csv"
         with patch('time.sleep'):
-            result = self.downloader.fetch_rent_contracts()
-            assert result == b"<html><body>Test content</body></html>"
-            assert mock_get.call_count == 2
-    
-    def test_parse_html_success(self):
-        """Test successful HTML parsing."""
-        html_content = b'<html><body><a class="action-icon-anchor" href="download.csv">Download</a></body></html>'
-        result = self.downloader.parse_html(html_content)
-        assert result == "download.csv"
-    
-    def test_parse_html_no_link(self):
-        """Test HTML parsing when no download link found."""
-        html_content = b'<html><body>No download link here</body></html>'
-        result = self.downloader.parse_html(html_content)
-        assert result is None
-    
-    @patch('lib.extract.rent_contracts_downloader.requests.get')
-    def test_download_file_success(self, mock_get, tmp_path):
-        """Test successful file download."""
-        mock_response = Mock()
-        mock_response.iter_content.return_value = [b"test", b"content"]
-        mock_response.raise_for_status.return_value = None
-        mock_response.headers = {'content-length': '11'}
-        mock_get.return_value = mock_response
-        
-        file_path = tmp_path / "test_file.csv"
-        self.downloader.download_file("http://example.com/file.csv", str(file_path))
-        
-        assert file_path.exists()
-        assert file_path.read_text() == "testcontent"
-    
-    @patch('lib.extract.rent_contracts_downloader.requests.get')
-    def test_download_file_retry(self, mock_get, tmp_path):
-        """Test retry logic on file download failure."""
-        mock_response = Mock()
-        mock_response.iter_content.return_value = [b"test", b"content"]
-        mock_response.raise_for_status.return_value = None
-        mock_response.headers = {'content-length': '11'}
-        mock_get.side_effect = [requests.exceptions.Timeout("Timeout"), mock_response]
-        
-        file_path = tmp_path / "test_file.csv"
-        with patch('time.sleep'):
-            self.downloader.download_file("http://example.com/file.csv", str(file_path))
-        
-        assert file_path.exists()
-        assert file_path.read_text() == "testcontent"
-    
-    @patch.object(RentContractsDownloader, 'fetch_rent_contracts')
-    @patch.object(RentContractsDownloader, 'parse_html')
-    @patch.object(RentContractsDownloader, 'download_file')
-    def test_run_success(self, mock_download, mock_parse, mock_fetch, tmp_path):
-        """Test successful run method."""
-        mock_fetch.return_value = b"<html>test</html>"
-        mock_parse.return_value = "download.csv"
-        
-        file_path = tmp_path / "output.csv"
-        result = self.downloader.run(str(file_path))
-        
-        assert result is True
-        mock_fetch.assert_called_once()
-        mock_parse.assert_called_once_with(b"<html>test</html>")
-        mock_download.assert_called_once_with("download.csv", str(file_path))
-    
-    @patch.object(RentContractsDownloader, 'fetch_rent_contracts')
-    @patch.object(RentContractsDownloader, 'parse_html')
-    def test_run_no_download_link(self, mock_parse, mock_fetch, tmp_path):
-        """Test run method when no download link found."""
-        mock_fetch.return_value = b"<html>test</html>"
-        mock_parse.return_value = None
-        
-        file_path = tmp_path / "output.csv"
-        result = self.downloader.run(str(file_path))
-        
-        assert result is False
+            assert self.downloader.run(str(out)) is False
 
 
-class TestRentContractsTransformer:
+class TestRentsTransformer:
     def setup_method(self):
-        """Setup for each test method."""
         self.input_file = "test_input.csv"
         self.output_file = "test_output.parquet"
-        self.transformer = RentContractsTransformer(self.input_file, self.output_file, validate=False)
-    
+        self.transformer = RentsTransformer(self.input_file, self.output_file)
+
     def test_init(self):
-        """Test transformer initialization."""
         assert self.transformer.input_file == self.input_file
         assert self.transformer.output_file == self.output_file
-        assert self.transformer.validate is False
-    
+
     @patch('polars.scan_csv')
-    @patch('polars.DataFrame.write_parquet')
-    def test_transform_success(self, mock_write, mock_scan):
-        """Test successful transformation."""
-        # Mock the lazy frame
+    def test_transform_success(self, mock_scan):
         mock_lf = Mock()
         mock_scan.return_value = mock_lf
-        
-        # Mock the with_columns chain
         mock_lf.with_columns.return_value = mock_lf
-        mock_lf.head.return_value = mock_lf
-        mock_lf.collect.return_value = Mock()
+        sample = Mock()
+        sample.height = 2
+        sample.columns = ["ANNUAL_AMOUNT", "AREA_EN"]
+        sample.__getitem__ = Mock(return_value=Mock(null_count=Mock(return_value=0)))
+        mock_lf.head.return_value.collect.return_value = sample
+        mock_lf.collect_schema.return_value.names.return_value = []
         mock_lf.sink_parquet.return_value = None
-        
-        result = self.transformer.transform()
-        
-        assert result is True
-        mock_scan.assert_called_once()
+        assert self.transformer.transform() is True
         mock_lf.sink_parquet.assert_called_once()
-    
+
     @patch('polars.scan_csv')
     def test_transform_file_not_found(self, mock_scan):
-        """Test transformation with missing input file."""
         mock_scan.side_effect = FileNotFoundError("File not found")
-        
-        result = self.transformer.transform()
-        
-        assert result is False
-    
-    @patch('polars.scan_csv')
-    def test_transform_computation_error(self, mock_scan):
-        """Test transformation with polars computation error."""
-        mock_lf = Mock()
-        mock_scan.return_value = mock_lf
-        mock_lf.with_columns.side_effect = pl.exceptions.ComputeError("Compute error")
-        
-        result = self.transformer.transform()
-        
-        assert result is False
-    
-    def test_log_statistics(self):
-        """Test statistics logging."""
-        # Create test dataframe
-        test_df = pl.DataFrame({
-            'annual_amount': [50000, 75000, 100000, None],
-            'property_usage_en': ['Residential', 'Commercial', 'Residential', 'Commercial']
-        })
-        
-        # This should not raise an exception
-        self.transformer._log_statistics(test_df)
-
-
-class TestStarSchema:
-    def setup_method(self):
-        """Setup for each test method."""
-        self.test_df = pl.DataFrame({
-            'property_id': [1, 2, 3],
-            'area_name': ['Dubai Marina', 'Downtown Dubai', 'JBR']
-        })
-        self.test_query = "SELECT * FROM rent_contracts_df WHERE area_name = 'Dubai Marina'"
-        self.star_schema = StarSchema(self.test_df, self.test_query)
-    
-    def test_init(self):
-        """Test StarSchema initialization."""
-        assert self.star_schema.rent_contracts_df.equals(self.test_df)
-        assert self.star_schema.query == self.test_query
-    
-    def test_transform(self):
-        """Test StarSchema transformation."""
-        result = self.star_schema.transform()
-        
-        # Should return filtered dataframe
-        assert result.height == 1
-        assert result['area_name'][0] == 'Dubai Marina'
+        assert self.transformer.transform() is False
 
 
 class TestPropertyUsage:
@@ -469,12 +347,12 @@ class TestETLPipelineIntegration:
         self.parquet_filename = "test_rent_contracts.parquet"
         self.property_usage_report = "test_property_usage.csv"
     
-    @patch.dict(os.environ, {'DLD_URL': 'https://example.com/test'})
-    @patch('run_etl_pipeline.RentContractsDownloader')
-    @patch('run_etl_pipeline.RentContractsTransformer')
+    @patch.dict(os.environ, {'EJARI_URL': 'https://example.com/test'})
+    @patch('run_etl_pipeline.EjariRentsDownloader')
+    @patch('run_etl_pipeline.RentsTransformer')
     @patch('run_etl_pipeline.PropertyUsage')
     @patch('run_etl_pipeline.GitHubRelease')
-    def test_complete_pipeline_success(self, mock_github_class, mock_property_usage_class, 
+    def test_complete_pipeline_success(self, mock_github_class, mock_property_usage_class,
                                      mock_transformer_class, mock_downloader_class):
         """Test complete ETL pipeline execution."""
         # Setup mocks
@@ -516,21 +394,21 @@ class TestETLPipelineIntegration:
         """Test download function when file already exists."""
         with patch('run_etl_pipeline.os.path.isfile', return_value=True):
             with patch('run_etl_pipeline.logger'):
-                from run_etl_pipeline import download_rent_contracts
-                download_rent_contracts(self.test_url, self.csv_filename)
-    
-    @patch('run_etl_pipeline.RentContractsDownloader')
+                from run_etl_pipeline import download_rents
+                download_rents(self.test_url, self.csv_filename)
+
+    @patch('run_etl_pipeline.EjariRentsDownloader')
     def test_download_rent_contracts_new_file(self, mock_downloader_class):
         """Test download function for new file."""
         mock_downloader = Mock()
         mock_downloader.run.return_value = True
         mock_downloader_class.return_value = mock_downloader
-        
+
         with patch('run_etl_pipeline.os.path.isfile', return_value=False):
             with patch('run_etl_pipeline.logger'):
-                from run_etl_pipeline import download_rent_contracts
-                download_rent_contracts(self.test_url, self.csv_filename)
-        
+                from run_etl_pipeline import download_rents
+                download_rents(self.test_url, self.csv_filename)
+
         mock_downloader_class.assert_called_once_with(self.test_url)
         mock_downloader.run.assert_called_once_with(self.csv_filename)
     

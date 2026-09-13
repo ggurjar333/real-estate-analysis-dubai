@@ -4,13 +4,15 @@
 ![License](https://img.shields.io/github/license/ggurjar333/rental-market-dynamics-dubai)
 ![Coverage](https://img.shields.io/codecov/c/github/ggurjar333/rental-market-dynamics-dubai)
 
-This repository contains the code and rent contracts data for analyzing real estate properties in Dubai. The project automates the extraction, transformation, and analysis of rent contracts, providing insights into property usage.
+Ejari rent transactions only — sourced from the configured `EJARI_URL` endpoint
+(Rent Transaction Details). No sales, no carea, no legacy Pulse code.
 
 ## Features
 
-- **Automated Data Extraction:** Retrieve rent contracts from the Dubai Land Department.
-- **Data Transformation:** Convert CSV data to Parquet for optimized querying.
+- **Automated Data Extraction:** Paginated gateway rents fetch (`EjariRentsDownloader`).
+- **Data Transformation:** Rents CSV → Parquet with canonical aliases (`RentsTransformer`).
 - **Property Usage Analysis:** Generate detailed property usage reports.
+- **Scrapy spider:** `rents` spider in `rents_scraper/` (same gateway endpoint).
 - **Automated Releases:** Publish processed data via GitHub releases.
 - **CI/CD Integration:** Built-in workflows to test and deploy changes.
 
@@ -23,53 +25,45 @@ This repository contains the code and rent contracts data for analyzing real est
 ## Installation
 
 1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/ggurjar333/rental-market-dynamics-dubai
-   cd rental-market-dynamics-dubai
-
-2. **Set up a virtual environment**
     ```bash
-    python -m venv .venv
-    source venv/bin/activate
+    git clone https://github.com/ggurjar333/rental-market-dynamics-dubai
+    cd rental-market-dynamics-dubai
     ```
 
-3. **Install dependencies**
+2. **Install dependencies**
     ```bash
-    python -m venv .venv
-    source .venv/bin/activate
-    make build
+    uv sync
     ```
 
-4. **Create a ``.env`` file**
-    
+3. **Create a ``.env`` file**
+
     Copy the provided example and update the values:
     ```bash
     cp .env.example .env
+    ```
+    `.env` needs only:
+    ```bash
+    EJARI_URL=your_ejari_endpoint_here
     ```
 
 ## Folder Structure
 ```bash
 .
-├── .github
-│   ├── workflows
-│   │   ├── build_and_deploy.yml
-│   │   └── cron.yml
-│   └── dependabot.yml
-├── docs
-│   └── architecture.md
 ├── lib
 │   ├── extract
+│   │   └── ejari_rents_downloader.py   # POST EJARI_URL
 │   ├── transform
+│   │   └── rents_transformer.py        # rents CSV -> Parquet
 │   ├── classes
 │   ├── workspace
-│   ├── assets
-│   ├── logging_helpers.py
-│   └── __init__.py
-├── output
+│   ├── config.py                       # rents config (EJARI_URL)
+│   └── logging_helpers.py
+├── rents_scraper
+│   └── rents_scraper/spiders/rents.py  # Scrapy rents spider
+├── output                              # rents_*.csv, rents_*.parquet
 ├── tests
+├── run_etl_pipeline.py                 # EJARI_URL pipeline
 ├── .env.example
-├── CHANGELOG.md
-├── CONTRIBUTING.md
 ├── Makefile
 ├── README.md
 └── requirements.txt
@@ -91,10 +85,19 @@ This repository contains the code and rent contracts data for analyzing real est
 
 ## Usage Examples
 - **Downloading & Transforming Data**:
-    
-    The ETL process downloads rent contracts, transforms the data into Parquet format, and generates a property usage report. Logs are saved in ``etl.log``.
+
+    The ETL process downloads Ejari rents, transforms the data into Parquet format, and generates a property usage report. Logs are saved in ``etl.log``.
     ```bash
+    make etl
+    # or
     python run_etl_pipeline.py
+    ```
+
+- **Scrapy rents spider**:
+    ```bash
+    make scrapy-rents
+    # or
+    cd rents_scraper && uv run scrapy crawl rents -a from_date=09/12/2026 -a to_date=09/13/2026 -O ../output/rents.jsonl
     ```
 
 - **Publishing Releases**:

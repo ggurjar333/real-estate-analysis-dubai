@@ -154,9 +154,12 @@ MARKET_METRICS = {
 }
 
 
-# API and Data Source Configuration
+# API and Data Source Configuration (Ejari rents only)
+# URL must come from EJARI_URL env (repo secret in CI). No hardcoded fallback.
+import os as _os
+
 API_CONFIG = {
-    "dld_base_url": "https://www.dubailand.gov.ae",
+    "gateway_rents_url": _os.getenv("EJARI_URL"),
     "request_timeout": 30,  # seconds
     "max_retries": 3,
     "retry_backoff_factor": 2,  # exponential backoff

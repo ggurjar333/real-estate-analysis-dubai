@@ -10,7 +10,6 @@ readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
     "requests",
-    "beautifulsoup4",
     "python-dotenv",
     "coloredlogs",
     "cmake",
@@ -21,6 +20,7 @@ dependencies = [
     "requests-mock",
     "lib",
     "duckdb",
+    "scrapy>=2.13.4",
 ]
 
 [tool.setuptools.packages.find]
