@@ -2,6 +2,8 @@
 Ejari rents downloader — POSTs the configured EJARI_URL endpoint
 (Rent Transaction Details). Params: P_DATE_TYPE, P_VERSION, P_IS_FREE_HOLD etc.
 """
+from __future__ import annotations
+
 import csv
 import json
 import logging
